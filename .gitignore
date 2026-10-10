@@ -179,3 +179,19 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# Big Data Datasets & Raw Files (Do NOT push to GitHub - over 100MB)
+ml-25m/
+data/raw/
+data/processed/
+*.csv
+*.parquet
+
+# Laravel Web Framework ignores
+web/vendor/
+web/node_modules/
+web/.env
+web/storage/logs/
+web/storage/framework/cache/
+web/storage/framework/sessions/
+web/storage/framework/views/
