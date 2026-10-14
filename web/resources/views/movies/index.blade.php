@@ -1,49 +1,26 @@
 @extends('layouts.app')
-
-@section('title', 'Khám phá Danh mục Phim - MovieLens 25M')
-
+@section('title', 'Khám phá phim · Movie Lab')
 @section('content')
 <div class="space-y-8">
-
-    <!-- Hero Banner & MovieLens 25M Stat Highlights -->
-    <div class="relative overflow-hidden rounded-3xl p-8 md:p-10 glass-panel border border-slate-700/60 shadow-2xl">
-        <div class="absolute -right-20 -top-20 w-96 h-96 bg-brand-600/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-20 -bottom-20 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="relative z-10 max-w-3xl space-y-4">
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-semibold uppercase tracking-wider">
-                <i data-lucide="database" class="w-3.5 h-3.5"></i> MovieLens 25M Dataset • GroupLens Lab
-            </div>
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
-                Khám phá & Đánh giá Phim
-            </h1>
-        </div>
-
-        <!-- Quick Stats Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-800/80">
-            <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-                <div class="text-slate-400 text-xs font-medium">Quy mô Dataset</div>
-                <div class="text-xl font-bold text-white mt-1">25M - 32M</div>
-                <div class="text-[11px] text-emerald-400 mt-0.5">Ratings sạch</div>
-            </div>
-            <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-                <div class="text-slate-400 text-xs font-medium">Thang điểm chuẩn</div>
-                <div class="text-xl font-bold text-amber-400 mt-1">0.5 - 5.0 ⭐</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">Bước nhảy 0.5 sao</div>
-            </div>
-            <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-                <div class="text-slate-400 text-xs font-medium">Tốc độ Phản hồi</div>
-                <div class="text-xl font-bold text-white mt-1">12 - 18 ms</div>
-                <div class="text-[11px] text-cyan-400 mt-0.5">Fold-in Vector RAM</div>
-            </div>
-            <div class="p-4 rounded-2xl bg-slate-900/50 border border-slate-800">
-                <div class="text-slate-400 text-xs font-medium">Bộ nhớ đệm</div>
-                <div class="text-xl font-bold text-white mt-1">Alluxio Warm</div>
-                <div class="text-[11px] text-amber-400 mt-0.5">Tăng tốc 3.8x - 4.2x</div>
-            </div>
-        </div>
-    </div>
-
+<section class="hero-cinema grid md:grid-cols-[1.12fr_1fr] items-center px-7 md:px-12 py-10 md:py-12 gap-6">
+<div class="space-y-6 relative z-10">
+<p class="eyebrow flex items-center gap-3"><span class="w-6 h-px bg-rose-300"></span> Một vũ trụ điện ảnh. Gu của riêng bạn.</p>
+<h1 class="text-4xl md:text-6xl font-black leading-[1.08] tracking-tight">Bộ phim tiếp theo.<br><span class="text-rose-300">Một cảm xúc mới.</span></h1>
+<p class="text-sm leading-7 text-slate-400 max-w-md">Khám phá {{ number_format($totalCount) }} bộ phim. Xem trailer, chấm điểm và để những câu chuyện bạn yêu dẫn lối.</p>
+<div class="flex flex-wrap gap-3 pt-1"><a href="{{ route('recommendations.index') }}" class="primary"><i data-lucide="sparkles" class="w-4 h-4"></i> Khám phá gu của tôi</a><a href="{{ route('movies.show', 2571) }}" class="secondary"><i data-lucide="play" class="w-4 h-4"></i> Xem trailer</a></div>
+<div class="flex flex-wrap items-center gap-5 text-[11px] text-slate-500 pt-3"><span>✦ Đánh giá theo gu</span><span>✦ Gợi ý cá nhân hóa</span><span>✦ Trailer chính thức</span></div>
+</div>
+<div class="cinema-scene" aria-hidden="true">
+<div class="cinema-orbit"></div>
+@foreach($movies->take(3) as $featured)
+<div class="poster-sculpture" style="--x:{{ [-100, 10, 110][$loop->index] }}px;--z:{{ [0, 75, -45][$loop->index] }}px;--r:{{ [-13, 3, 15][$loop->index] }}deg;--delay:{{ $loop->index * -2 }}s;z-index:{{ [2,3,1][$loop->index] }}">
+<img src="{{ $featured['poster'] }}" alt="" onerror="this.onerror=null;this.src='{{ $featured['fallbackPoster'] }}'">
+</div>
+@endforeach
+<div class="scene-label">Đánh giá <span class="text-rose-300 mx-2">→</span> Hiểu gu <span class="text-rose-300 mx-2">→</span> Tìm phim</div>
+</div>
+</section>
+@if(!($apiOnline ?? false))<p class="text-amber-300">Catalog tạm thời chưa kết nối. Đang hiển thị danh mục dự phòng; đánh giá cần dịch vụ hoạt động.</p>@endif
     <!-- Search & Filter Bar -->
     <div class="space-y-4">
         <form method="GET" action="{{ route('movies.index') }}" class="flex flex-col md:flex-row gap-4">
@@ -90,7 +67,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-5">
             @forelse($movies as $movie)
             @php
                 $userRating = $userRatingMap[$movie['movieId']] ?? null;

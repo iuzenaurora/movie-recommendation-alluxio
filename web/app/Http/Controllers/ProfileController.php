@@ -2,64 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Services\MovieDataService;
+use App\Services\ApiService;
 
 class ProfileController extends Controller
 {
-    public function index()
+    public function index(): mixed
     {
-        $user = session('current_user', MovieDataService::getDemoUsers()[0]);
-        $userRatings = MovieDataService::getUserRatings($user['id']);
-        $movies = MovieDataService::getMovies();
-
-        $detailedRatings = [];
-        $genreCounts = [];
-
-        foreach ($userRatings as $r) {
-            $movie = collect($movies)->firstWhere('movieId', $r['movieId']);
-            if ($movie) {
-                $detailedRatings[] = array_merge($movie, [
-                    'userRating' => $r['rating'],
-                    'ratedAt' => $r['ratedAt'] ?? date('Y-m-d H:i:s'),
-                ]);
-
-                foreach ($movie['genres'] as $g) {
-                    $genreCounts[$g] = ($genreCounts[$g] ?? 0) + 1;
-                }
+        $uid = ApiService::sessionUser();
+        $data = ApiService::getHistory($uid);
+        abort_unless($data !== null, 503, 'Dịch vụ lịch sử đang bảo trì.');
+        $ratings = [];
+        $genres = [];
+        foreach ($data['items'] as $item) {
+            $movie = MovieController::normalizeMovie($item);
+            $movie['userRating'] = (float) $item['rating'];
+            $ratings[] = $movie;
+            foreach ($movie['genres'] as $genre) {
+                $genres[$genre] = ($genres[$genre] ?? 0) + 1;
             }
         }
-
-        arsort($genreCounts);
-        $topGenre = !empty($genreCounts) ? array_key_first($genreCounts) : 'Chưa xác định';
-        $avgScore = count($userRatings) > 0 ? round(array_sum(array_column($userRatings, 'rating')) / count($userRatings), 2) : 0;
-        $historyVersion = session("history_version_{$user['id']}", count($userRatings));
+        arsort($genres);
 
         return view('profile.index', [
-            'currentUser' => $user,
-            'ratings' => $detailedRatings,
-            'totalRated' => count($userRatings),
-            'avgScore' => $avgScore,
-            'topGenre' => $topGenre,
-            'historyVersion' => $historyVersion,
-            'demoUsers' => MovieDataService::getDemoUsers(),
+            'currentUser' => session('current_user'), 'ratings' => $ratings, 'totalRated' => count($ratings),
+            'avgScore' => count($ratings) ? round(array_sum(array_column($ratings, 'userRating')) / count($ratings), 2) : 0,
+            'topGenre' => array_key_first($genres) ?? 'Chưa xác định', 'historyVersion' => $data['historyVersion'],
         ]);
     }
 
-    public function deleteRating($movieId)
+    public function deleteRating(int $movieId): mixed
     {
-        $user = session('current_user', MovieDataService::getDemoUsers()[0]);
-        $ratings = MovieDataService::getUserRatings($user['id']);
+        $result = ApiService::deleteRating(ApiService::sessionUser(), $movieId);
+        abort_unless($result && ! empty($result['ok']), 503, 'Chưa xóa được đánh giá. Vui lòng thử lại.');
 
-        $ratings = array_values(array_filter($ratings, function ($r) use ($movieId) {
-            return $r['movieId'] != $movieId;
-        }));
-
-        session(["user_ratings_{$user['id']}" => $ratings]);
-
-        $version = session("history_version_{$user['id']}", 1);
-        session(["history_version_{$user['id']}" => $version + 1]);
-
-        return redirect()->back()->with('success', 'Đã hủy đánh giá bộ phim.');
+        return back()->with('success', 'Đã xóa đánh giá và cập nhật lịch sử.');
     }
 }

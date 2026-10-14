@@ -1,0 +1,42 @@
+# Run on machine A. Image is exported from the already-working machine B.
+services:
+  namenode:
+    image: ${HADOOP_IMAGE:-phatmovies-namenode:latest}
+    command: [namenode]
+    hostname: namenode
+    volumes:
+      - nn:/hadoop/name
+      - ../:/workspace:ro
+      - ./hadoop/server/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./hadoop/server/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    ports:
+      - "${STORAGE_IP:?Set STORAGE_IP in .env.storage}:9000:9000"
+      - "127.0.0.1:9870:9870"
+    mem_limit: 768m
+    healthcheck:
+      test: [CMD-SHELL, "hdfs dfs -ls / >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+  datanode:
+    image: ${HADOOP_IMAGE:-phatmovies-namenode:latest}
+    command: [datanode]
+    hostname: datanode
+    networks:
+      default:
+        aliases: [hdfs-storage]
+    volumes:
+      - dn:/hadoop/data
+      - ./hadoop/server/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml:ro
+      - ./hadoop/server/hdfs-site.xml:/opt/hadoop/etc/hadoop/hdfs-site.xml:ro
+    ports:
+      - "${STORAGE_IP:?Set STORAGE_IP in .env.storage}:9866:9866"
+      - "${STORAGE_IP:?Set STORAGE_IP in .env.storage}:9867:9867"
+      - "127.0.0.1:9864:9864"
+    depends_on:
+      namenode:
+        condition: service_healthy
+    mem_limit: 768m
+volumes:
+  nn:
+  dn:

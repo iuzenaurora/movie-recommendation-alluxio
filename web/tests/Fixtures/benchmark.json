@@ -1,0 +1,1 @@
+{"datasetVersion":"synthetic-test","trainCheck":{"rows":100},"warnings":[],"timingSummary":[{"phase":"readMaterializeSeconds","label":"H2","runs":5,"medianSeconds":5,"iqrSeconds":1,"speedupVsH0":2}]}

@@ -4,6 +4,11 @@
 
 @section('content')
 <div class="space-y-8">
+    @if(!($apiOnline ?? false))
+    <p class="p-4 rounded-xl bg-amber-950 text-amber-200">API chưa sẵn sàng. Đây là demo xếp hạng cục bộ theo thể loại, không phải kết quả ALS.</p>
+    @else
+    <p class="text-slate-400">Phương pháp: {{ $recData['method'] ?? 'ALS fold-in' }}. Điểm xếp hạng không phải xác suất phù hợp hoặc điểm sao cộng đồng.</p>
+    @endif
 
     <!-- Recommender Header & Performance Metrics -->
     <div class="relative overflow-hidden rounded-3xl p-8 glass-panel border border-brand-500/40 shadow-2xl">
@@ -33,14 +38,14 @@
         <!-- Latency & Model Version Badges -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-800">
             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                <div class="text-[11px] text-slate-400">Độ trễ tính toán Fold-in</div>
+                <div class="text-[11px] text-slate-400">Thời gian xử lý gợi ý</div>
                 <div class="text-lg font-bold text-emerald-400 mt-0.5">{{ $recData['latencyMs'] }} ms</div>
-                <div class="text-[10px] text-slate-500">Vector RAM Computation</div>
+                <div class="text-[10px] text-slate-500">Đo tại API cho mỗi yêu cầu</div>
             </div>
             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="text-[11px] text-slate-400">Phiên bản Mô hình ALS</div>
                 <div class="text-sm font-bold text-white mt-0.5 truncate">{{ $recData['modelVersion'] }}</div>
-                <div class="text-[10px] text-indigo-400">Spark + Alluxio Cache</div>
+                <div class="text-[10px] text-indigo-400">Phiên bản model đang phục vụ</div>
             </div>
             <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
                 <div class="text-[11px] text-slate-400">Lịch sử Đánh giá</div>
@@ -57,19 +62,28 @@
         </div>
     </div>
 
-    <!-- 3 Recommendation Modes Navigation Tabs -->
+    @if($currentMode === 'hybrid')
+    <div class="glass-panel rounded-2xl p-5 text-sm text-slate-300 leading-7">Cá nhân hóa kết hợp <strong>ALS + sở thích thể loại</strong>. Điểm thích trên 3 sao tăng tín hiệu thể loại; điểm dưới 3 sao giảm tín hiệu. Đây là bước xếp hạng bổ sung, không phải kết quả ALS thuần hay một lần huấn luyện model mới.</div>
+    @elseif($currentMode === 'als_fold_in')
+    <div class="rounded-2xl p-5 border border-amber-500/20 text-sm text-amber-200 leading-7">Bạn đang xem <strong>ALS thuần</strong> để đối chiếu. Model hiện tại có thể ưu tiên các phim tài liệu điểm cao dù khác gu. Chọn <a class="underline" href="{{ route('recommendations.index', ['mode'=>'hybrid']) }}">ALS + gu phim</a> để kết hợp tín hiệu thể loại.</div>
+    @endif
+    @if(($recData['supportedRatings'] ?? 0) < 5)
+    <p class="text-xs text-slate-400">Có {{ $recData['supportedRatings'] ?? 0 }} đánh giá dùng được cho fold-in. Ít đánh giá khiến gợi ý chưa ổn định; điểm cao và điểm thấp đều giúp phân biệt sở thích.</p>
+    @endif
+    <!-- Recommendation modes -->
     <div class="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-3">
+        <a href="{{ route('recommendations.index', ['mode' => 'hybrid']) }}" class="px-4 py-2.5 rounded-xl text-xs font-bold transition {{ $currentMode === 'hybrid' ? 'bg-brand-600 text-white' : 'bg-slate-800 text-slate-300' }}">ALS + gu phim · Đề xuất</a>
         <a href="{{ route('recommendations.index', ['mode' => 'als_fold_in']) }}" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $currentMode === 'als_fold_in' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' }}">
             <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-            1. Top 10 ALS Fold-in (Lọc Cộng tác)
+            Top 10 ALS thuần · Đối chiếu
         </a>
         <a href="{{ route('recommendations.index', ['mode' => 'genre']) }}" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $currentMode === 'genre' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' }}">
             <i data-lucide="tag" class="w-4 h-4 text-cyan-400"></i>
-            2. Gợi ý theo Thể loại Gu của bạn ({{ $recData['favoriteGenre'] }})
+            Theo thể loại yêu thích ({{ $recData['favoriteGenre'] }})
         </a>
         <a href="{{ route('recommendations.index', ['mode' => 'trending']) }}" class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $currentMode === 'trending' ? 'bg-brand-600 text-white shadow-lg shadow-brand-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700' }}">
             <i data-lucide="flame" class="w-4 h-4 text-rose-400"></i>
-            3. Phim Thịnh hành & Được xem nhiều nhất
+            Phim điểm cao cộng đồng
         </a>
     </div>
 
@@ -110,7 +124,7 @@
 
                     <!-- Match Score Badge -->
                     <div class="absolute top-2 right-2 z-10 px-2 py-0.5 rounded-md bg-emerald-500/90 text-slate-950 font-black text-[11px] shadow">
-                        {{ $movie['matchPercentage'] }}% Match
+                        #{{ $loop->iteration }}
                     </div>
 
                     <!-- Poster with onerror Fallback -->
@@ -132,7 +146,7 @@
                             <a href="{{ route('movies.show', $movie['movieId']) }}">{{ $movie['title'] }}</a>
                         </h3>
                         <div class="flex items-center justify-between text-[11px] text-slate-400">
-                            <span>Điểm dự đoán:</span>
+                            <span>Điểm xếp hạng:</span>
                             <span class="font-extrabold text-amber-400">{{ $movie['predictedScore'] }}</span>
                         </div>
                     </div>

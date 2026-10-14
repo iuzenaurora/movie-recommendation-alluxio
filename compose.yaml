@@ -1,0 +1,119 @@
+services:
+  namenode:
+    profiles: [infra]
+    build: {context: ., dockerfile: infra/hadoop/Dockerfile}
+    command: [namenode]
+    volumes: ["nn:/hadoop/name", "./:/workspace"]
+    ports: ["127.0.0.1:9870:9870"]
+    mem_limit: 768m
+    healthcheck:
+      test: [CMD-SHELL, "hdfs dfs -ls / >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+  datanode:
+    profiles: [infra]
+    build: {context: ., dockerfile: infra/hadoop/Dockerfile}
+    command: [datanode]
+    hostname: datanode
+    volumes: ["dn:/hadoop/data"]
+    depends_on: {namenode: {condition: service_healthy}}
+    mem_limit: 768m
+  alluxio-master:
+    profiles: [infra]
+    image: alluxio/alluxio:2.9.5
+    user: "0:0"
+    entrypoint: ["/bin/bash", "/scripts/alluxio-master.sh"]
+    environment:
+      ALLUXIO_JAVA_OPTS: >-
+        -Xmx384m -Dalluxio.master.hostname=alluxio-master
+        -Dalluxio.master.mount.table.root.ufs=hdfs://namenode:9000/
+        -Dalluxio.master.journal.type=UFS
+        -Dalluxio.master.journal.folder=/journal
+        -Dalluxio.security.authorization.permission.enabled=false
+    volumes: ["journal:/journal", "./infra/alluxio-master.sh:/scripts/alluxio-master.sh:ro"]
+    ports: ["127.0.0.1:19999:19999"]
+    depends_on: {namenode: {condition: service_healthy}}
+    mem_limit: 768m
+  alluxio-worker:
+    profiles: [infra]
+    image: alluxio/alluxio:2.9.5
+    user: "0:0"
+    command: [worker-only]
+    hostname: alluxio-worker
+    environment:
+      ALLUXIO_JAVA_OPTS: >-
+        -Xmx384m -Dalluxio.master.hostname=alluxio-master
+        -Dalluxio.worker.hostname=alluxio-worker
+        -Dalluxio.worker.ramdisk.size=${ALLUXIO_CACHE_SIZE:-512MB}
+        -Dalluxio.worker.tieredstore.level0.dirs.path=/opt/alluxio/ramdisk
+        -Dalluxio.worker.tieredstore.level0.dirs.quota=${ALLUXIO_CACHE_SIZE:-512MB}
+        -Dalluxio.master.mount.table.root.ufs=hdfs://namenode:9000/
+        -Dalluxio.security.authorization.permission.enabled=false
+    tmpfs: ["/opt/alluxio/ramdisk:size=1073741824,mode=1777"]
+    depends_on: [alluxio-master, datanode]
+    mem_limit: 1536m
+  spark:
+    profiles: [jobs]
+    build: {context: ., dockerfile: infra/spark/Dockerfile}
+    volumes: ["./:/workspace"]
+    environment:
+      SPARK_DRIVER_MEMORY: ${SPARK_DRIVER_MEMORY:-2g}
+    mem_limit: 3584m
+  mongo:
+    profiles: [app]
+    image: mongo:7.0
+    ports: ["127.0.0.1:27018:27017"]
+    volumes: ["mongo:/data/db"]
+    mem_limit: 512m
+    healthcheck:
+      test: [CMD, mongosh, --quiet, --eval, "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  api:
+    profiles: [app]
+    build: {context: ., dockerfile: serving/Dockerfile}
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      MODEL_DIR: /models/current
+      RESULT_DIR: /experiments/results
+      SERVICE_TOKEN_FILE: /runtime/service-token
+      LINKS_FILE: /raw/ml-32m/links.csv
+    volumes: ["./models:/models:ro", "./experiments:/experiments:ro", "./runtime:/runtime", "./data/raw:/raw:ro"]
+    depends_on: {mongo: {condition: service_healthy}}
+    ports: ["127.0.0.1:8000:8000"]
+    mem_limit: 768m
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 6s
+      start_period: 120s
+      retries: 12
+  web:
+    profiles: [app]
+    build: {context: ., dockerfile: web/Dockerfile}
+    environment:
+      RECOMMENDER_URL: http://api:8000
+      MODEL_DIR: /models/current
+      EXPERIMENT_DIR: /experiments
+      BENCHMARK_REPORT: ${BENCHMARK_REPORT:-als-benchmark/ml32m-vpn-als-20261012-205245/metrics-summary-v1/metrics-summary.json}
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      SERVICE_TOKEN_FILE: /runtime/service-token
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/app/storage/app/auth.sqlite
+    volumes:
+      - "web-storage:/var/www/app/storage"
+      - "./models:/models:ro"
+      - "./experiments:/experiments:ro"
+      - "./runtime:/runtime"
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on: {api: {condition: service_healthy}}
+    mem_limit: 512m
+volumes:
+  nn:
+  dn:
+  journal:
+  mongo:
+  web-storage:

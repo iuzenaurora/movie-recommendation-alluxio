@@ -2,104 +2,86 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ApiService;
+use App\Services\MovieDataService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Services\MovieDataService;
+use Illuminate\Validation\ValidationException;
 
 class MovieController extends Controller
 {
-    public function index(Request $request)
+    public static function normalizeMovie(array $movie): array
     {
-        $allMovies = MovieDataService::getMovies();
-        $query = $request->input('q');
-        $genre = $request->input('genre');
+        $id = (int) ($movie['movieId'] ?? 0);
+        $title = $movie['title'] ?? 'Phim #'.$id;
+        preg_match('/\\((\\d{4})\\)/', $title, $match);
+        $year = isset($match[1]) ? (int) $match[1] : 0;
+        $genres = is_array($movie['genres'] ?? '') ? $movie['genres'] : array_values(array_filter(explode('|', $movie['genres'] ?? '')));
+        $average = (float) ($movie['avgRating'] ?? 0);
+        $fallback = MovieDataService::generateDynamicSvgPoster($title, $year, $genres[0] ?? 'Cinema', $average);
 
-        $filtered = collect($allMovies);
-
-        if (!empty($query)) {
-            $filtered = $filtered->filter(function ($m) use ($query) {
-                return stripos($m['title'], $query) !== false || stripos($m['overview'], $query) !== false;
-            });
-        }
-
-        if (!empty($genre) && $genre !== 'all') {
-            $filtered = $filtered->filter(function ($m) use ($genre) {
-                return in_array($genre, $m['genres']);
-            });
-        }
-
-        // Pagination: 12 movies per page
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 12;
-        $currentPageItems = $filtered->slice(($currentPage - 1) * $perPage, $perPage)->values();
-
-        $paginatedMovies = new LengthAwarePaginator(
-            $currentPageItems,
-            $filtered->count(),
-            $perPage,
-            $currentPage,
-            ['path' => LengthAwarePaginator::resolveCurrentPath(), 'query' => $request->query()]
-        );
-
-        $allGenres = ['Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Drama', 'Fantasy', 'Horror', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War'];
-
-        $user = session('current_user', MovieDataService::getDemoUsers()[0]);
-        $userRatings = MovieDataService::getUserRatings($user['id']);
-        $userRatingMap = collect($userRatings)->pluck('rating', 'movieId')->toArray();
-
-        return view('movies.index', [
-            'movies' => $paginatedMovies,
-            'allGenres' => $allGenres,
-            'selectedGenre' => $genre,
-            'query' => $query,
-            'currentUser' => $user,
-            'userRatingMap' => $userRatingMap,
-            'totalCount' => $filtered->count(),
-        ]);
+        return ['movieId' => $id, 'title' => $title, 'year' => $year, 'genres' => $genres,
+            'overview' => $movie['overview'] ?? 'Khám phá phim và chia sẻ đánh giá để xây dựng gu điện ảnh của bạn.',
+            'poster' => $movie['poster'] ?? $fallback, 'fallbackPoster' => $fallback,
+            'avgRating' => $average, 'rating' => $average, 'ratingCount' => (int) ($movie['ratingCount'] ?? 0),
+            'hasFactor' => (bool) ($movie['hasFactor'] ?? false), 'score' => $movie['score'] ?? null];
     }
 
-    public function show($id)
+    public function index(Request $request): mixed
     {
-        $allMovies = MovieDataService::getMovies();
-        $movie = collect($allMovies)->firstWhere('movieId', intval($id));
-
-        if (!$movie) {
-            return redirect()->route('movies.index')->with('error', 'Không tìm thấy bộ phim yêu cầu.');
+        $query = $request->string('q')->toString();
+        $genre = $request->string('genre')->toString();
+        $page = max(1, $request->integer('page', 1));
+        $data = ApiService::getMovies($query, $genre === 'all' ? '' : $genre, $page);
+        abort_unless($data !== null, 503, 'Catalog đang bảo trì. Vui lòng thử lại sau.');
+        $userRatingMap = [];
+        if (auth()->check()) {
+            $uid = ApiService::sessionUser();
+            $history = ApiService::getHistory($uid);
+            $userRatingMap = collect($history['items'] ?? [])->pluck('rating', 'movieId')->all();
         }
+        $items = collect($data['items'])->map(fn ($item) => self::normalizeMovie($item));
+        $movies = new LengthAwarePaginator($items, $data['total'], 24, $page, ['path' => $request->url(), 'query' => $request->query()]);
 
-        $user = session('current_user', MovieDataService::getDemoUsers()[0]);
-        $userRatings = MovieDataService::getUserRatings($user['id']);
-        $personalRating = collect($userRatings)->firstWhere('movieId', intval($id));
-
-        return view('movies.show', [
-            'movie' => $movie,
-            'currentUser' => $user,
-            'personalRating' => $personalRating,
-        ]);
+        return view('movies.index', ['movies' => $movies, 'allGenres' => ['Action', 'Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy', 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western'],
+            'selectedGenre' => $genre, 'query' => $query, 'currentUser' => session('current_user', ['id' => 0, 'name' => 'Khách']),
+            'userRatingMap' => $userRatingMap, 'totalCount' => $data['total'], 'apiOnline' => true]);
     }
 
-    public function rate(Request $request, $id)
+    public function show(int $id): mixed
     {
-        $user = session('current_user', MovieDataService::getDemoUsers()[0]);
-        $rating = $request->input('rating');
-
-        if ($rating < 0.5 || $rating > 5.0) {
-            return response()->json(['status' => 'error', 'message' => 'Điểm đánh giá phải từ 0.5 đến 5.0'], 422);
+        $data = ApiService::getMovie($id);
+        abort_unless($data !== null, 404, 'Không tìm thấy phim.');
+        $movie = self::normalizeMovie($data);
+        $personalRating = null;
+        if (auth()->check()) {
+            $history = ApiService::getHistory(ApiService::sessionUser());
+            $personalRating = collect($history['items'] ?? [])->firstWhere('movieId', $id);
+        }
+        $path = config('recommender.runtime_dir', '/runtime').'/trailers.json';
+        $trailers = is_file($path) ? json_decode(file_get_contents($path), true) : [];
+        $trailerId = $trailers[(string) $id] ?? config('trailers.youtube.'.$id);
+        if (! is_string($trailerId) || ! preg_match('/^[A-Za-z0-9_-]{11}$/', $trailerId)) {
+            $trailerId = null;
         }
 
-        MovieDataService::saveUserRating($user['id'], intval($id), floatval($rating));
+        return view('movies.show', ['movie' => $movie, 'currentUser' => session('current_user', ['name' => 'Khách']),
+            'personalRating' => $personalRating, 'trailerId' => $trailerId, 'studioUrl' => config('trailers.studio.'.$id)]);
+    }
 
-        $historyVersion = session("history_version_{$user['id']}", 1);
-
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Đã lưu đánh giá ' . $rating . '⭐ vào MongoDB thành công!',
-                'historyVersion' => $historyVersion,
-                'rating' => $rating,
-            ]);
+    public function rate(Request $request, int $id): mixed
+    {
+        $data = $request->validate(['rating' => ['required', 'numeric', 'between:0.5,5']]);
+        $rating = (float) $data['rating'];
+        if ($rating * 2 !== floor($rating * 2)) {
+            throw ValidationException::withMessages(['rating' => 'Chọn điểm theo bước 0,5 sao.']);
+        }
+        $result = ApiService::rateMovie(ApiService::sessionUser(), $id, $rating);
+        abort_unless($result && ! empty($result['ok']), 503, 'Không lưu được đánh giá. Vui lòng thử lại.');
+        if ($request->expectsJson()) {
+            return response()->json(['status' => 'success', 'savedViaApi' => true, 'rating' => $rating, 'historyVersion' => $result['historyVersion']]);
         }
 
-        return redirect()->back()->with('success', "Đã chấm {$rating}⭐ cho bộ phim. historyVersion tăng lên v{$historyVersion}!");
+        return back()->with('success', 'Đã lưu '.$rating.' sao. Gợi ý cá nhân đã sẵn sàng cập nhật.');
     }
 }

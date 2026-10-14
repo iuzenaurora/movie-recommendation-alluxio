@@ -1,0 +1,59 @@
+# Run on machine B. HDFS is reached via the LAN address of machine A.
+x-hdfs-hosts: &hdfs-hosts
+  hdfs-storage: "${STORAGE_IP:?Set STORAGE_IP in .env.compute}"
+services:
+  alluxio-master:
+    image: alluxio/alluxio:2.9.5
+    user: "0:0"
+    hostname: alluxio-master
+    entrypoint: ["/bin/bash", "/scripts/alluxio-master.sh"]
+    extra_hosts: *hdfs-hosts
+    environment:
+      ALLUXIO_JAVA_OPTS: >-
+        -Xmx384m -Dalluxio.master.hostname=alluxio-master
+        -Dalluxio.master.mount.table.root.ufs=hdfs://hdfs-storage:9000/
+        -Dalluxio.underfs.hdfs.configuration=/hdfs-conf/core-site.xml:/hdfs-conf/hdfs-site.xml
+        -Dalluxio.master.journal.type=UFS
+        -Dalluxio.master.journal.folder=/journal
+        -Dalluxio.security.authorization.permission.enabled=false
+    volumes:
+      - journal:/journal
+      - ./alluxio-master.sh:/scripts/alluxio-master.sh:ro
+      - ./hadoop/client:/hdfs-conf:ro
+    ports: ["127.0.0.1:19999:19999"]
+    mem_limit: 768m
+  alluxio-worker:
+    image: alluxio/alluxio:2.9.5
+    user: "0:0"
+    command: [worker-only]
+    hostname: alluxio-worker
+    extra_hosts: *hdfs-hosts
+    environment:
+      ALLUXIO_JAVA_OPTS: >-
+        -Xmx384m -Dalluxio.master.hostname=alluxio-master
+        -Dalluxio.worker.hostname=alluxio-worker
+        -Dalluxio.worker.ramdisk.size=${ALLUXIO_CACHE_SIZE:-512MB}
+        -Dalluxio.worker.tieredstore.level0.dirs.path=/opt/alluxio/ramdisk
+        -Dalluxio.worker.tieredstore.level0.dirs.quota=${ALLUXIO_CACHE_SIZE:-512MB}
+        -Dalluxio.master.mount.table.root.ufs=hdfs://hdfs-storage:9000/
+        -Dalluxio.underfs.hdfs.configuration=/hdfs-conf/core-site.xml:/hdfs-conf/hdfs-site.xml
+        -Dalluxio.security.authorization.permission.enabled=false
+    volumes:
+      - ./hadoop/client:/hdfs-conf:ro
+    tmpfs: ["/opt/alluxio/ramdisk:size=1073741824,mode=1777"]
+    depends_on: [alluxio-master]
+    mem_limit: 1536m
+  spark:
+    image: ${SPARK_IMAGE:-phatmovies-spark:latest}
+    profiles: [jobs]
+    extra_hosts: *hdfs-hosts
+    environment:
+      SPARK_DRIVER_MEMORY: ${SPARK_DRIVER_MEMORY:-2g}
+      PYSPARK_PYTHON: python3
+      PYTHONPATH: /workspace/src
+      HADOOP_USER_NAME: root
+    volumes: ["../:/workspace"]
+    working_dir: /workspace
+    mem_limit: 3584m
+volumes:
+  journal:

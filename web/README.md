@@ -1,89 +1,52 @@
-# Website Laravel
+# Web Laravel
 
-Thư mục dành cho website PHP/Laravel, tích hợp MongoDB và dịch vụ Python. Chưa có ứng dụng hoặc cấu hình cài đặt đã kiểm thử.
+Giao diện khám phá phim và trung tâm điều hành MovieLab. Chạy bằng Docker theo [hướng dẫn chung](../HUONG_DAN_CHAY.md); không cần cài PHP trên Windows.
 
-## Chức năng dự kiến
+## Cấu trúc
 
-- Chọn hồ sơ demo hoặc tài khoản.
-- Tìm phim, xem chi tiết, lọc và phân trang.
-- Xem lịch sử, chấm và sửa rating.
-- Gọi gợi ý Top 10 theo yêu cầu.
-- Hiển thị trạng thái lưu, lỗi/fallback và phiên bản mô hình/lịch sử.
-- Dashboard dữ liệu, mô hình và hiệu năng lưu trữ.
-- Theo dõi snapshot, retrain và phiên bản hiện hành.
+| Đường dẫn | Chức năng |
+|---|---|
+| `app/Http/Controllers/` | Auth, phim, đánh giá, gợi ý, admin và pipeline |
+| `app/Http/Middleware/AccountContext.php` | Đồng bộ thông tin tài khoản đăng nhập |
+| `app/Models/User.php` | Tài khoản web và quyền |
+| `app/Services/ApiService.php` | Gọi FastAPI bằng service token |
+| `app/Services/JobQueue.php` | Ghi các job hợp lệ vào runtime |
+| `resources/views/` | Blade: phim, tài khoản, admin, bảo trì |
+| `public/css/cinema.css` | Giao diện và hiệu ứng 3D |
+| `public/js/` | Hiệu ứng thẻ phim và polling điều hành |
+| `routes/web.php` | Route và middleware xác thực |
+| `routes/console.php` | Bootstrap/promote admin |
+| `config/recommender.php`, `config/trailers.php` | Đường dẫn runtime/model và trailer mẫu |
+| `database/migrations/` | Schema tài khoản SQLite |
+| `tests/Feature/` | Luồng đăng nhập, đánh giá, quyền và pipeline |
+| `Dockerfile`, `start.sh` | Build và khởi động web |
 
-## Trách nhiệm backend
+## Tài khoản và phân quyền
 
-Xác thực hồ sơ, kiểm đầu vào, lưu rating vào MongoDB và lấy lịch sử chuẩn trước khi gọi Python. Không tin lịch sử tùy ý do trình duyệt gửi.
+Tài khoản lưu trong SQLite, mật khẩu băm bằng Laravel. UUID `app_user_id` ổn định liên kết sang hồ sơ gợi ý MongoDB. Người dùng không tự gán role admin khi đăng ký.
 
-Một cặp tài khoản–phim có một rating hiện hành; sửa điểm là cập nhật. historyVersion tăng nhất quán khi lịch sử đổi. Tách ID tài khoản với trainingUserId qua mapping.
+Catalog và trailer công khai. Đánh giá, lịch sử và gợi ý cần đăng nhập. Các endpoint admin kiểm tra role phía server, kể cả endpoint JSON cập nhật tiến độ.
 
-## Luồng rating
+SQLite và application key nằm trong volume `web-storage`. `start.sh` chạy migration, tái sử dụng key và tạo admin ban đầu khi cần. Thông tin admin nằm ở `runtime/admin-credentials.json`, không hardcode trong source.
 
-Chấm điểm → Laravel kiểm tra/lưu MongoDB → gọi fold-in → tính lại gợi ý. Nếu đã lưu nhưng API lỗi, thông báo đúng trạng thái và cho thử lại; không báo mô hình đã cập nhật chỉ vì DB ghi thành công.
+## Tự động hóa
 
-## Dashboard
+Trang `/admin/jobs` đọc heartbeat, lịch scheduler, manifest model và job. JavaScript lấy trạng thái mỗi 5 giây từ `/admin/pipeline/status`; trang chi tiết job đọc thêm phần cuối log.
 
-Dùng CSV/log thật, gắn điều kiện đo và run_id. Chỉ gọi dashboard là live khi lấy trạng thái thật. Trang benchmark lưu trữ tách khỏi nút gợi ý đang dùng factors trong RAM.
+Web ghi yêu cầu job; worker trên máy B thực thi Docker. Web không được mount Docker socket và không chấp nhận lệnh shell tùy ý. Cài đặt tự động gồm lịch benchmark, ngưỡng retrain và tự kích hoạt model.
 
-## Triển khai
+## Giao diện
 
-Dự kiến chạy trên Windows hoặc Docker. Phiên bản Laravel/PHP, connector MongoDB, cấu hình kết nối, cổng và thao tác chạy cần chốt khi triển khai. Không commit `.env` thật, vendor hoặc node_modules; cấu hình mẫu không chứa bí mật.
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Blade tải Tailwind và Lucide qua CDN. CSS/JS tùy chỉnh nằm trực tiếp trong `public/`; các thay đổi này không cần Vite build. Máy demo cần Internet cho CDN, poster và trailer. Hiệu ứng chuyển động tôn trọng `prefers-reduced-motion`.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sau khi sửa source, từ gốc dự án chạy starter với `--build` rồi tải lại trang. `package.json` và Vite vẫn được giữ cho phát triển frontend; chúng không tham gia đường chạy giao diện hiện tại.
 
-## About Laravel
+## Kiểm thử
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Cài dependency phát triển bằng Composer trong môi trường PHP 8.3 có SQLite. Chuẩn bị thư mục `storage/framework/views`, `sessions`, `cache/data` và `storage/logs`. Sau đó chạy tại `web/`:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```sh
+APP_ENV=testing DB_CONNECTION=sqlite DB_DATABASE=:memory: SESSION_DRIVER=array CACHE_STORE=array vendor/bin/phpunit
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Lệnh trên dùng shell Linux/container. Các biến môi trường testing cần được đặt khi chạy trong image Docker vốn mặc định APP_ENV=local. Không dùng database đang chạy để chạy kiểm thử.

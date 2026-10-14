@@ -1,39 +1,16 @@
-# Thực nghiệm và đánh giá
+# Kết quả thực nghiệm
 
-Thư mục lưu protocol, CSV số đo nhỏ, biểu đồ và mô tả điều kiện thực nghiệm. Chưa có kết quả đo thật.
+Giữ các thư mục đã có để bảo toàn log và bằng chứng; không xóa hoặc gắn kết quả của máy cũ cho máy mới.
 
-## Sáu cấu hình lưu trữ
+| Vị trí | Nội dung |
+|---|---|
+| `als-benchmark/<run>/` | Các lượt benchmark ALS, cache, metrics và cấu hình |
+| `als-benchmark/auto-<UUID>/` | Run do worker tạo |
+| `metrics-summary-v1/` bên trong run | Báo cáo tổng hợp của run |
+| Các thư mục results hiện có | Kết quả các giai đoạn thực nghiệm trước |
 
-| Mã | Đường đọc | Cache Alluxio đầu lượt |
-|---|---|---|
-| H0 | Spark → HDFS | Không sử dụng |
-| H1 | Spark → Alluxio → HDFS | Rỗng |
-| H2 | Spark → Alluxio → HDFS | Đã nạp; ghi tỷ lệ nằm trong cache |
-| L0 | Spark → Lustre | Không sử dụng |
-| L1 | Spark → Alluxio → Lustre | Rỗng |
-| L2 | Spark → Alluxio → Lustre | Đã nạp; ghi tỷ lệ nằm trong cache |
+Worker benchmark đo H0/H1/H2, mỗi nhãn 5 lượt, kiểm tra trạng thái cache và chỉ công bố pointer `runtime/active-benchmark.json` khi tổng hợp thành công.
 
-## Tác vụ
+Báo cáo VPN `ml32m-vpn-als-20261012-205245` thuộc hạ tầng cũ. Run trên máy A mới cần số đo riêng. Benchmark scan/group và benchmark ALS là hai workload khác nhau, không gộp kết quả.
 
-- S1: đọc giá trị rating/timestamp và tính tổng; không dùng count đơn thuần để tuyên bố đọc toàn bộ dữ liệu.
-- S2: nhóm theo movieId, tính số rating và điểm trung bình.
-- S3: chuỗi ba hoặc năm Spark application độc lập, chốt một số lượng trước khi đo.
-- S4 tùy chọn: ALS fit với cùng dữ liệu và tham số.
-
-## Điều kiện đối chứng
-
-Dùng cùng snapshot, file layout và cấu hình Spark. Công bố CPU/RAM, backend, cache quota, protocol OS cache và lịch lượt chạy. Đo thời gian action thực thi, tách startup và copy Drive. S1/S2 không dùng user cache/persist Spark.
-
-Chạy ít nhất năm lượt cho mỗi điểm S1/S2, luân phiên thứ tự và kiểm cache trước/sau. S3 reset trước cả chuỗi, không reset giữa các application. So sánh trên cùng máy hoặc điều kiện tương đương; khác phần cứng chỉ phân tích hiệu quả cache trong từng backend.
-
-## Chỉ số
-
-- Lưu trữ: trung vị thời gian, IQR, speedup so với direct cùng backend, byte cache/UFS, cache fraction, RAM, CPU, swap/lỗi và tính đúng.
-- Mô hình: RMSE, MAE, Precision@10, Recall@10, NDCG@10, coverage.
-- Ứng dụng: thời gian lưu, fold-in, tính điểm và tổng phản hồi; tách khỏi hiệu quả Alluxio khi dùng factors trong RAM.
-
-Mỗi lượt cần run_id, environment_id, datasetVersion, workload, cấu hình và kết quả logic. Nếu counter không đo được, ghi rõ thiếu; không suy ra hit rate chỉ từ thời gian.
-
-## Sản phẩm
-
-CSV số đo gốc, bảng tổng hợp, biểu đồ và giải thích cả lợi ích lẫn overhead. Log lớn lưu Drive `05_Experiments`. Không đưa số giả vào dashboard hoặc README.
+Xem [protocol](../docs/THUC_NGHIEM.md) và [phạm vi kiểm chứng](../docs/KIEM_THU.md).

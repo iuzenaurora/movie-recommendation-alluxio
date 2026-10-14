@@ -1,2 +1,15 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+.gitignore text eol=lf
+.dockerignore text eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.pyw text eol=lf
+*.php text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.ipynb text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.md text eol=lf

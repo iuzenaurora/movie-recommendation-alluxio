@@ -1,36 +1,35 @@
-# Hạ tầng xử lý và lưu trữ
+# Hạ tầng Docker
 
-Thư mục dành cho cấu hình mẫu, Dockerfile/Compose nếu sử dụng, mô tả mạng, vùng lưu dữ liệu và hướng dẫn vận hành. Hiện chưa có cấu hình đã kiểm thử.
-
-## Phương án dự kiến
-
-- Windows + Docker Desktop dùng WSL 2 để thử HDFS, Alluxio và Spark.
-- Lustre trên Linux có kernel/module phù hợp; môi trường chưa chốt.
-- Colab dùng để phát triển notebook; benchmark lưu trữ cần đường đọc thực tế trong môi trường Linux.
-
-Docker không loại bỏ yêu cầu ảo hóa trên Windows và không tự cung cấp kernel phù hợp cho Lustre. Các phiên bản phần mềm, image tag và tài nguyên cần xác minh bằng phép thử nhỏ trước khi chốt.
+Cấu hình hạ tầng dùng để dựng môi trường Hadoop, Spark và Alluxio. Ứng dụng thường ngày chạy bằng [launcher](../MovieLab.pyw); hướng dẫn cấu hình hai máy ở [twohost/README.md](../twohost/README.md).
 
 ## Thành phần
 
-- HDFS: NameNode, DataNode và dữ liệu bền.
-- Alluxio: Master, Worker, journal và vùng cache.
-- Spark: môi trường thực thi tác vụ dữ liệu.
-- Lustre: server/targets và client mount thật.
+| Đường dẫn | Vai trò |
+|---|---|
+| `hadoop/Dockerfile` và file cùng thư mục | Image Hadoop cho NameNode/DataNode |
+| `spark/Dockerfile` | Spark 3.5.6, Java 11, NumPy và Alluxio client 2.9.5 |
+| `alluxio-master.sh` | Khởi tạo journal mới một lần và chạy Master |
+| `../compose.yaml` | App, image build và cấu hình hạ tầng một máy |
+| `../twohost/compose.storage.yaml` | HDFS máy A |
+| `../twohost/compose.compute.yaml` | Alluxio/Spark máy B |
 
-## Kiểm tra tối thiểu
+Không chạy đồng thời Alluxio một máy và Alluxio hai máy nếu dùng cùng cổng 19999. Worker hiện sử dụng cấu hình hai máy cho benchmark/retrain.
 
-1. Ghi/đọc tệp nhỏ trên từng backend.
-2. Mount nguồn vào Alluxio và đọc qua Spark.
-3. Đối chiếu checksum và kết quả logic.
-4. Xác nhận dữ liệu bền trước khi giải phóng cache.
-5. Kiểm phục hồi dịch vụ sau restart.
+## Build image phục vụ hai máy
 
-Chỉ chuẩn bị/format target thử nghiệm mới dành riêng cho Lustre. Không format vùng chứa dữ liệu cá nhân; không format lại nguồn đã có để khởi động dịch vụ.
+Chạy tại gốc dự án trên máy B:
 
-## Tài nguyên và lưu trữ
+```powershell
+docker compose --profile jobs build spark
+docker compose --profile infra build namenode
+```
 
-Máy 16 GB cần thử từng nhóm dịch vụ, đo tổng RAM và swap. Không cấp hết RAM cho Docker hoặc máy ảo. Dữ liệu volume, cache và đĩa máy ảo lưu ngoài Git; repo chứa cấu hình để dựng lại môi trường.
+Tên image phụ thuộc Compose project. Mẫu `.env.example` dùng `COMPOSE_PROJECT_NAME=phatmovies`, tương ứng `phatmovies-spark:latest` và `phatmovies-namenode:latest`.
 
-## Tài liệu phải bổ sung
+## Lưu trữ và tài nguyên
 
-Phiên bản đã kiểm tra, image nguồn, cổng, tên dịch vụ, đường mount, quota cache, giới hạn tài nguyên, thứ tự startup, thao tác kiểm tra/dừng/phục hồi và sao lưu. Không commit thông tin xác thực thật.
+HDFS dùng named volumes NameNode/DataNode; Alluxio dùng journal volume và tmpfs cache. Spark mount source/dataset/model từ project. Không format lại NameNode hoặc xóa volumes để khắc phục lỗi khởi động thông thường.
+
+Compute hiện cấu hình heap Spark 2g, container Spark 3584m, cache Alluxio 512MB. Đây là cấu hình lab hiện tại, không phải bảo đảm cho mọi quy mô dữ liệu. Theo dõi RAM và dung lượng khi tạo phiên bản retrain.
+
+Lustre chưa được triển khai trong các Compose này. Xem [docs/LUSTRE_LINUX.md](../docs/LUSTRE_LINUX.md) nếu yêu cầu đồ án bắt buộc Lustre thật.

@@ -2,83 +2,56 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
-use App\Services\MovieDataService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLogin(): mixed
     {
-        $demoUsers = MovieDataService::getDemoUsers();
-        return view('auth.login', compact('demoUsers'));
+        return view('auth.login');
     }
 
-    public function login(Request $request)
-    {
-        $email = $request->input('email');
-        $demoUsers = MovieDataService::getDemoUsers();
-        
-        $user = collect($demoUsers)->firstWhere('email', $email);
-
-        if (!$user) {
-            // Đăng nhập mặc định cho user tự nhập
-            $user = [
-                'id' => rand(200, 999),
-                'name' => $request->input('name', 'Khách xem phim'),
-                'email' => $email,
-                'role' => 'user',
-                'persona' => 'Custom User',
-                'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
-                'description' => 'Tài khoản người dùng mới tạo.',
-                'historyVersion' => 0,
-            ];
-        }
-
-        session(['current_user' => $user]);
-        return redirect()->route('movies.index')->with('success', 'Đăng nhập thành công với vai trò: ' . $user['name']);
-    }
-
-    public function quickLogin($id)
-    {
-        $demoUsers = MovieDataService::getDemoUsers();
-        $user = collect($demoUsers)->firstWhere('id', intval($id));
-
-        if ($user) {
-            session(['current_user' => $user]);
-            return redirect()->back()->with('success', 'Đã chuyển sang tài khoản: ' . $user['name']);
-        }
-
-        return redirect()->route('login')->with('error', 'Không tìm thấy tài khoản demo.');
-    }
-
-    public function showRegister()
+    public function showRegister(): mixed
     {
         return view('auth.register');
     }
 
-    public function register(Request $request)
+    public function register(Request $request): mixed
     {
-        $name = $request->input('name', 'User Mới');
-        $email = $request->input('email');
+        $request->merge(['email' => strtolower(trim((string) $request->input('email')))]);
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:80'],
+            'email' => ['required', 'email', 'max:254', 'unique:users,email'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+        $user = User::create(['name' => $data['name'], 'email' => strtolower($data['email']), 'password' => Hash::make($data['password'])]);
+        Auth::login($user);
+        $request->session()->regenerate();
 
-        $newUser = [
-            'id' => rand(500, 999),
-            'name' => $name,
-            'email' => $email,
-            'role' => 'user',
-            'persona' => 'Newly Registered User',
-            'avatar' => 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80',
-            'description' => 'Tài khoản vừa đăng ký để kiểm thử Cold-Start Recommender.',
-            'historyVersion' => 0,
-        ];
-
-        session(['current_user' => $newUser]);
-        return redirect()->route('movies.index')->with('success', 'Đăng ký tài khoản thành công!');
+        return redirect()->route('recommendations.index')->with('success', 'Tài khoản đã được tạo. Hãy đánh giá vài phim để nhận gợi ý.');
     }
 
-    public function logout()
+    public function login(Request $request): mixed
     {
-        session()->forget('current_user');
-        return redirect()->route('login')->with('success', 'Đã đăng xuất thành công.');
+        $data = $request->validate(['email' => ['required', 'email'], 'password' => ['required', 'string']]);
+        if (! Auth::attempt(['email' => strtolower($data['email']), 'password' => $data['password']], $request->boolean('remember'))) {
+            return back()->withErrors(['email' => 'Email hoặc mật khẩu chưa đúng.'])->onlyInput('email');
+        }
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('movies.index'));
+    }
+
+    public function logout(Request $request): mixed
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 }
