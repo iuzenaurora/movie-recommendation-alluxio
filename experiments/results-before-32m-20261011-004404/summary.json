@@ -1,0 +1,50 @@
+[
+  {
+    "task": "group",
+    "label": "H0",
+    "runs": 5,
+    "medianSeconds": 12.150171041000249,
+    "iqrSeconds": 0.22698865299980753,
+    "speedupVsDirect": 1.0
+  },
+  {
+    "task": "group",
+    "label": "H1",
+    "runs": 5,
+    "medianSeconds": 12.807642707000014,
+    "iqrSeconds": 1.4823532950003937,
+    "speedupVsDirect": 0.9486656771241422
+  },
+  {
+    "task": "group",
+    "label": "H2",
+    "runs": 5,
+    "medianSeconds": 13.0155870589997,
+    "iqrSeconds": 0.19324990200038883,
+    "speedupVsDirect": 0.9335092597762578
+  },
+  {
+    "task": "scan",
+    "label": "H0",
+    "runs": 5,
+    "medianSeconds": 10.743338092000158,
+    "iqrSeconds": 0.6530198209998161,
+    "speedupVsDirect": 1.0
+  },
+  {
+    "task": "scan",
+    "label": "H1",
+    "runs": 5,
+    "medianSeconds": 13.457346239999879,
+    "iqrSeconds": 1.800618449999547,
+    "speedupVsDirect": 0.7983251601320361
+  },
+  {
+    "task": "scan",
+    "label": "H2",
+    "runs": 5,
+    "medianSeconds": 13.242783968999902,
+    "iqrSeconds": 1.1024805639999613,
+    "speedupVsDirect": 0.8112597862465545
+  }
+]

@@ -1,0 +1,156 @@
+{
+  "modelVersion": "als-4033f5cd6298",
+  "checks": [
+    {
+      "sourceUserId": 137522,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 137522,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 137522,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 107654,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 107654,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 107654,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 13026,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 13026,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 13026,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 94902,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 94902,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 94902,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 195815,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 195815,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 195815,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 30447,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 30447,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 30447,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 191165,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 191165,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 191165,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 3116,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 3116,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 3116,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 149275,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 149275,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 149275,
+      "mode": "genre",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 158843,
+      "mode": "als_fold_in",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 158843,
+      "mode": "hybrid",
+      "exactTopKMatch": true
+    },
+    {
+      "sourceUserId": 158843,
+      "mode": "genre",
+      "exactTopKMatch": true
+    }
+  ],
+  "scope": "personalized modes only; popularity intentionally differs (train-only offline vs serving full package)"
+}

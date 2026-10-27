@@ -37,6 +37,12 @@ class ProjectFlowTest extends TestCase
             if (str_contains($url, '/movies/')) {
                 return Http::response(['movieId' => 10, 'title' => 'Test Movie (1995)', 'genres' => 'Drama']);
             }
+            if (str_ends_with(parse_url($url, PHP_URL_PATH), '/movies')) {
+                return Http::response(['items' => [
+                    ['movieId' => 10, 'title' => 'Test Movie (1995)', 'genres' => 'Drama'],
+                    ['movieId' => 11, 'title' => 'Another Movie (2000)', 'genres' => 'Adventure'],
+                ], 'total' => 50]);
+            }
 
             return Http::response([], 503);
         });
@@ -47,6 +53,18 @@ class ProjectFlowTest extends TestCase
         $this->postJson('/movies/10/rate', ['rating' => 4])->assertUnauthorized();
         $this->get('/profile')->assertRedirect('/login');
         $this->get('/quick-login/101')->assertNotFound();
+    }
+
+    public function test_catalog_keeps_search_filters_and_pagination_with_real_movie_links(): void
+    {
+        $this->get('/movies')->assertOk()->assertSee('Tiêu điểm điện ảnh')
+            ->assertSee('/movies/10', false)->assertSee('Test Movie (1995)')->assertSee('Đăng nhập')
+            ->assertDontSee('/admin/benchmark', false);
+        $this->get('/movies?q=Test&genre=Drama&page=2')->assertOk()
+            ->assertSee('Kết quả tìm kiếm')->assertDontSee('data-spotlight', false)
+            ->assertSee('q=Test', false)->assertSee('genre=Drama', false);
+        Http::assertSent(fn ($request) => str_ends_with(parse_url($request->url(), PHP_URL_PATH), '/movies')
+            && ($request['q'] ?? null) === 'Test' && ($request['genre'] ?? null) === 'Drama' && ($request['page'] ?? null) === 2);
     }
 
     public function test_detail_renders_without_optional_fields_and_rating_redirect_works(): void

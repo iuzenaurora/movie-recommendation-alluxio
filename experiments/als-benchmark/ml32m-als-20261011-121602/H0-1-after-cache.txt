@@ -1,0 +1,2 @@
+﻿File Size     In Alluxio       Path
+275782918     0 (0%)           /datasets/ml32m-full-v1/split/split=train

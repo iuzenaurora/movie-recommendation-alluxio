@@ -1,0 +1,15 @@
+﻿{
+    "dataset":  "ml32m-full-v1",
+    "repeats":  5,
+    "runName":  "ml32m-als-20261011-121602",
+    "rank":  20,
+    "regParam":  0.1,
+    "maxIter":  10,
+    "numUserBlocks":  16,
+    "numItemBlocks":  16,
+    "seed":  42,
+    "input":  "/datasets/ml32m-full-v1/split/split=train",
+    "sparkCache":  "MEMORY_AND_DISK",
+    "osCache":  "uncontrolled",
+    "note":  "Benchmark read+fixed ALS only; no validation, test, model export or web."
+}

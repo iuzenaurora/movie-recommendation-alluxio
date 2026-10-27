@@ -58,7 +58,7 @@ async def lifespan(app):
     if state['candidate_ids'] is not None and not state['candidate_ids'].issubset({int(mid) for mid in state['ids']}):
         raise RuntimeError('Candidate ids do not match model factors')
     client=MongoClient(os.environ.get('MONGO_URI','mongodb://localhost:27017'),serverSelectionTimeoutMS=10000)
-    db=client.movies; db.command('ping'); db.ratings.create_index([('appUserId',ASCENDING),('movieId',ASCENDING)],unique=True)
+    db=client[os.environ.get('MONGO_DATABASE','movies')]; db.command('ping'); db.ratings.create_index([('appUserId',ASCENDING),('movieId',ASCENDING)],unique=True)
     db.movies.create_index([('movieId',ASCENDING),('datasetVersion',ASCENDING)])
     # Separate catalog snapshots by dataset version; never delete user ratings on model activation.
     docs=[{**x,'datasetVersion':meta['datasetVersion']} for x in state['movies'].values()]
@@ -91,7 +91,7 @@ def history(uid):
 @app.get('/health')
 def health():
     state['db'].command('ping')
-    return {'ok':True,'modelVersion':state['meta']['modelVersion']}
+    return {'ok':True,'modelVersion':state['meta']['modelVersion'],'database':state['db'].name}
 @app.get('/profiles')
 def profiles(): return {'profiles':[int(x) for x in state['profiles']]}
 class Profile(BaseModel):

@@ -1,0 +1,12 @@
+﻿Capacity information for all workers: 
+    Total vCPUs: 8
+    Total Capacity: 512.00MB
+        Tier: MEM  Size: 512.00MB
+    Used Capacity: 429.66MB
+        Tier: MEM  Size: 429.66MB
+    Used Percentage: 83%
+    Free Percentage: 17%
+
+Worker Name      State           Last Heartbeat   Storage       MEM              Version          Revision                                
+alluxio-worker   ACTIVE          0                capacity      512.00MB         2.9.5            3cb752d08f2835003db12b9c661165a59836d1fb
+                                                  used          429.66MB (83%)                                                            

@@ -1,29 +1,25 @@
-# Tài liệu dự án
+# Danh Mục Tài Liệu Kỹ Thuật (MovieLab)
 
-Bắt đầu từ [README gốc](../README.md) và [hướng dẫn chạy](../HUONG_DAN_CHAY.md). Tài liệu trong thư mục này tập trung vào thiết kế, bằng chứng và báo cáo; không cần đọc hết để mở web.
+Tài liệu trong thư mục này cung cấp thiết kế chi tiết, giao thức thực nghiệm, kiểm thử và báo cáo kết quả của hệ thống MovieLab.
 
-| Tài liệu | Nội dung |
+---
+
+## 1. Danh sách tài liệu chính
+
+| Tài liệu | Nội dung và Mục đích |
 |---|---|
-| [ThietKe_DuLieu.md](ThietKe_DuLieu.md) | Thiết kế dữ liệu và định danh; đối chiếu schema thực thi trong source |
-| [THUC_NGHIEM.md](THUC_NGHIEM.md) | Protocol đo, điều kiện cache và cách diễn giải |
-| [KIEM_THU.md](KIEM_THU.md) | Kiểm tra đã chạy, lệnh kiểm thử và phần chưa nghiệm thu |
-| [GhiChu_TrienKhai.md](GhiChu_TrienKhai.md) | Môi trường và kiến trúc triển khai hiện tại |
-| [GITHUB_DRIVE.md](GITHUB_DRIVE.md) | Phân chia source/dữ liệu và lưu trữ ngoài Git |
-| [LUSTRE_LINUX.md](LUSTRE_LINUX.md) | Điều kiện triển khai Lustre thật |
-| [NGUON_THAM_KHAO.md](NGUON_THAM_KHAO.md) | Nguồn tham khảo |
-| [BAO_CAO_MAU.md](BAO_CAO_MAU.md) | Khung báo cáo để điền bằng kết quả thực tế |
-| [CHECKLIST_NOP.md](CHECKLIST_NOP.md) | Checklist nghiệm thu/nộp bài |
+| [THUC_NGHIEM.md](THUC_NGHIEM.md) | **Giao thức và kế hoạch thực nghiệm**: Chi tiết về thiết kế đo tầng lưu trữ (H0/H1/H2), đánh giá chất lượng gợi ý offline (NDCG, Recall, Precision, RMSE, Bootstrap CI) và đo tải HTTP API. |
+| [reports/2026-10-20/bao-cao-thuc-nghiem.md](reports/2026-10-20/bao-cao-thuc-nghiem.md) | **Báo cáo kết quả thực nghiệm chính thức**: Số liệu đo đạc thực tế ngày 20/10/2026, bảng đối chiếu 1 máy vs 2 máy, chất lượng gợi ý và biểu đồ. |
+| [ThietKe_DuLieu.md](ThietKe_DuLieu.md) | **Thiết kế dữ liệu và định danh**: Phân tích schema MovieLens, quy tắc khử trùng lặp, chia tập theo thời gian và lưu trữ Parquet kèm manifest. |
+| [KIEM_THU.md](KIEM_THU.md) | **Kiểm thử và checklist nghiệm thu**: Kết quả các bộ test tự động (Laravel, Python unittest, API, Worker, Spark) và danh sách tiêu chí nghiệm thu đồ án. |
+| [GITHUB_DRIVE.md](GITHUB_DRIVE.md) | **Hướng dẫn quản lý mã nguồn**: Phân định giữa mã nguồn đẩy lên GitHub và dữ liệu lớn (dataset/model) lưu trữ ngoài Git. |
+| [LUSTRE_LINUX.md](LUSTRE_LINUX.md) | **Tài liệu nghiên cứu mở rộng**: Hướng dẫn và điều kiện thiết lập hệ thống tệp hiệu năng cao Lustre trên Linux. |
+| [NGUON_THAM_KHAO.md](NGUON_THAM_KHAO.md) | **Tài liệu tham khảo**: Các liên kết chính thức đến Apache Spark, Alluxio, Hadoop HDFS, GroupLens MovieLens và Laravel. |
 
-Các tài liệu thiết kế, protocol và mẫu báo cáo có thể chứa phương án chưa triển khai. Trạng thái kiểm chứng xem ở KIEM_THU; cấu hình chạy thực tế nằm trong Compose và source.
+---
 
-## Quy tắc bằng chứng
+## 2. Quy tắc quản lý dữ liệu và bằng chứng thực nghiệm
 
-- Gắn số đo với run, datasetVersion, modelVersion và hạ tầng thực tế.
-- Tách benchmark của máy A cũ khỏi máy A mới.
-- Không dùng test tổng hợp, fixture hoặc metrics kế thừa làm kết quả đánh giá mới.
-- Giữ model, snapshot và báo cáo cũ để đối chiếu.
-- Chỉ kết luận Lustre hoàn thành khi có triển khai và số đo Lustre thật.
-
-## Dọn cấu trúc ngày 14/10/2026
-
-Đã bỏ giao diện overlay cũ, thư mục mẫu Drive chỉ chứa ghi chú, file checksum/validation của gói phát hành cũ và hướng dẫn patch đã tích hợp. Hướng dẫn sử dụng được gom về README gốc, HUONG_DAN_CHAY và README hai máy. Dataset, model, runtime, kết quả thực nghiệm và tài liệu chuyên môn được giữ.
+- Mọi số đo thực nghiệm đều được gắn kèm mã định danh phiên bản (`modelVersion`, `datasetVersion`), mã băm SHA-256 và log thực thi đầy đủ trong thư mục `experiments/`.
+- Không sử dụng dữ liệu giả lập hoặc kết quả kiểm thử nhỏ (fixtures) để thay thế cho số đo trên tập dữ liệu MovieLens 32M thật.
+- Các kết quả thực nghiệm được theo dõi và hiển thị trực tiếp trên giao diện Admin Dashboard tại địa chỉ `http://localhost:8080/admin/benchmark`.

@@ -10,18 +10,16 @@ auth.json
 /runtime/
 /twohost/private-helper/
 
-# Datasets, model packages and generated experiments stay on the machine
+# Datasets and heavy model binary packages stay on local machine (DO NOT upload to GitHub)
 /data/raw/
 /data/processed/
+/data/**/*.csv
 /ml-25m/
 /ml-32m/
 /models/*
 !/models/README.md
 !/models/.gitkeep
-/experiments/*
-!/experiments/README.md
 *.parquet
-*.csv
 *.npz
 *.sqlite
 *.sqlite-*
@@ -34,6 +32,16 @@ auth.json
 *.zip
 *.rar
 *.7z
+
+# Ignore general CSV datasets, but ALLOW experimental result CSVs
+*.csv
+!/experiments/**/*.csv
+!/docs/reports/**/*.csv
+
+# Allow experimental results to be uploaded to GitHub
+!/experiments/
+!/experiments/**
+!/docs/reports/**
 
 # Python dependencies and generated files
 __pycache__/
@@ -77,6 +85,7 @@ dist/
 /web/.phpunit.result.cache
 /web/.phpunit.cache/
 *.log
+!/experiments/**/*.log
 
 # Editor and operating-system files
 .idea/

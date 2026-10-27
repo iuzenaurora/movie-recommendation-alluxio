@@ -48,12 +48,15 @@ def inspect_file(root, name):
     generated = (
         parts[0] == "runtime"
         or tuple(parts[:2]) in {("data", "raw"), ("data", "processed"), ("web", "vendor"), ("web", "node_modules")}
-        or (parts[0] in {"models", "experiments"} and name not in {"models/README.md", "models/.gitkeep", "experiments/README.md"})
+        or (parts[0] in {"models"} and name not in {"models/README.md", "models/.gitkeep"})
     )
     if private_name or generated:
         findings.append({"path": name, "rule": "local configuration or generated artifact"})
-    if path.suffix.lower() in {".npz", ".parquet", ".csv", ".sqlite", ".sqlite3", ".db", ".zip", ".rar", ".tar", ".pem", ".key"}:
+    is_allowed_result = parts[0] == "experiments" or (parts[0] == "docs" and "reports" in parts)
+    if path.suffix.lower() in {".npz", ".parquet", ".sqlite", ".sqlite3", ".db", ".zip", ".rar", ".tar", ".pem", ".key"}:
         findings.append({"path": name, "rule": "binary data, archive or private key"})
+    elif path.suffix.lower() == ".csv" and not is_allowed_result:
+        findings.append({"path": name, "rule": "dataset CSV outside experiments/reports"})
     if path.stat().st_size > MAX_SOURCE_BYTES:
         return findings + [{"path": name, "rule": "source file exceeds 5 MiB"}]
     try:

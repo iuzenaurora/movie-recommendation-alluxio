@@ -1,0 +1,19 @@
+{
+  "timestampUTC": "2026-10-10T10:32:17.575999+00:00",
+  "label": "H0",
+  "repeat": 4,
+  "task": "group",
+  "input": "hdfs://namenode:9000/datasets/demo-v1/ratings",
+  "seconds": 12.078668991000086,
+  "check": {
+    "groups": 9724,
+    "rows": 100836,
+    "sumRating": 353083.0
+  },
+  "sparkVersion": "3.5.6",
+  "master": "local[2]",
+  "shufflePartitions": "8",
+  "timingScope": "read+materialized action, Spark startup excluded; no explicit DataFrame persist",
+  "osCacheState": "uncontrolled; not claimed cold",
+  "datasetVersion": "ml-49806a0792d3"
+}

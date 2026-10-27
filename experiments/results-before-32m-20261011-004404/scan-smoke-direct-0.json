@@ -1,0 +1,19 @@
+{
+  "timestampUTC": "2026-10-10T10:12:51.107142+00:00",
+  "label": "smoke-direct",
+  "repeat": 0,
+  "task": "scan",
+  "input": "hdfs://namenode:9000/datasets/demo-v1/ratings",
+  "seconds": 10.9000455339999,
+  "check": {
+    "rows": 100836,
+    "sumRating": 353083.0,
+    "sumTimestamp": 121602779665887
+  },
+  "sparkVersion": "3.5.6",
+  "master": "local[2]",
+  "shufflePartitions": "8",
+  "timingScope": "read+materialized action, Spark startup excluded; no explicit DataFrame persist",
+  "osCacheState": "uncontrolled; not claimed cold",
+  "datasetVersion": "unspecified"
+}

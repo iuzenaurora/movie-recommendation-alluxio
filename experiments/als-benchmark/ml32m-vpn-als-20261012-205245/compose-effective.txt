@@ -1,0 +1,77 @@
+﻿name: phatmovies-compute-lan
+services:
+  alluxio-master:
+    entrypoint:
+      - /bin/bash
+      - /scripts/alluxio-master.sh
+    environment:
+      ALLUXIO_JAVA_OPTS: -Xmx384m -Dalluxio.master.hostname=alluxio-master -Dalluxio.master.mount.table.root.ufs=hdfs://hdfs-storage:9000/
+        -Dalluxio.underfs.hdfs.configuration=/hdfs-conf/core-site.xml:/hdfs-conf/hdfs-site.xml
+        -Dalluxio.master.journal.type=UFS -Dalluxio.master.journal.folder=/journal
+        -Dalluxio.security.authorization.permission.enabled=false
+    extra_hosts:
+      - hdfs-storage=100.126.14.56
+    hostname: alluxio-master
+    image: alluxio/alluxio:2.9.5
+    mem_limit: "805306368"
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 19999
+        published: "19999"
+        protocol: tcp
+    user: '0:0'
+    volumes:
+      - type: volume
+        source: journal
+        target: /journal
+        volume: {}
+      - type: bind
+        source: C:\Users\phatl\bigdata\movie-recommendation-alluxio\twohost\alluxio-master.sh
+        target: /scripts/alluxio-master.sh
+        read_only: true
+        bind: {}
+      - type: bind
+        source: C:\Users\phatl\bigdata\movie-recommendation-alluxio\twohost\hadoop\client
+        target: /hdfs-conf
+        read_only: true
+        bind: {}
+  alluxio-worker:
+    command:
+      - worker-only
+    depends_on:
+      alluxio-master:
+        condition: service_started
+        required: true
+    environment:
+      ALLUXIO_JAVA_OPTS: -Xmx384m -Dalluxio.master.hostname=alluxio-master -Dalluxio.worker.hostname=alluxio-worker
+        -Dalluxio.worker.ramdisk.size=512MB -Dalluxio.worker.tieredstore.level0.dirs.path=/opt/alluxio/ramdisk
+        -Dalluxio.worker.tieredstore.level0.dirs.quota=512MB -Dalluxio.master.mount.table.root.ufs=hdfs://hdfs-storage:9000/
+        -Dalluxio.underfs.hdfs.configuration=/hdfs-conf/core-site.xml:/hdfs-conf/hdfs-site.xml
+        -Dalluxio.security.authorization.permission.enabled=false
+    extra_hosts:
+      - hdfs-storage=100.126.14.56
+    hostname: alluxio-worker
+    image: alluxio/alluxio:2.9.5
+    mem_limit: "1610612736"
+    networks:
+      default: null
+    tmpfs:
+      - /opt/alluxio/ramdisk:size=1073741824,mode=1777
+    user: '0:0'
+    volumes:
+      - type: bind
+        source: C:\Users\phatl\bigdata\movie-recommendation-alluxio\twohost\hadoop\client
+        target: /hdfs-conf
+        read_only: true
+        bind: {}
+networks:
+  default:
+    name: phatmovies-compute-lan_default
+volumes:
+  journal:
+    name: phatmovies-compute-lan_journal
+x-hdfs-hosts:
+  hdfs-storage: 100.126.14.56

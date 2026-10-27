@@ -1,0 +1,20 @@
+﻿{
+    "serverVersion":  "29.7.2",
+    "cpus":  8,
+    "dockerMemoryBytes":  8199475200,
+    "operatingSystem":  "Docker Desktop",
+    "kernel":  "6.18.33.2-microsoft-standard-WSL2",
+    "architecture":  "x86_64",
+    "apiImage":  "sha256:3a82fa3936a0dc404df72b2552325a8d19ccaa35cf7f60c985e5e503a48650a5",
+    "apiMemoryLimitBytes":  1073741824,
+    "apiNanoCpus":  0,
+    "note":  "Docker VM resources; no other application containers were running at the start",
+    "sourceChecksums":  {
+                            "src/evaluation_protocol.py":  "861c7810d9db458dd1e114f1b8ae43b07bd570665c0db315d2ce7409dbfb0ef7",
+                            "src/recommend_core.py":  "0ebc4b804d2e368262d2538d33ea0a8289d6b1b4fe1fbc240a21a975c6e41314",
+                            "serving/api.py":  "ebe8d606831cd3a5604a804c25fba51668a27121e7f8d7356ba99b22eec99272",
+                            "scripts/evaluate_recommendations.py":  "06caf2dc283aada44e387e60ab0873076e66087433e4294ddcb146d3a4f2a314",
+                            "compose.evaluation.yaml":  "bc930a1977ef3162393d50db40a18bebc58275ae5d249692233f7e7bba75e0bb",
+                            "scripts/benchmark_recommendation_api.py":  "2f09fec39ab57c04d73295f1a1beb2bb1ae978824e1b21ee580dc8c6be31b250"
+                        }
+}

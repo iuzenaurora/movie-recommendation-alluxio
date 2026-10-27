@@ -83,6 +83,18 @@ Lượt upload này tạo dữ liệu tổng hợp dưới `/acceptance/uploads/
 - Kiểm tra giao diện trực quan trên desktop/mobile và trailer trong trình duyệt thực tế.
 - Notebook trong phiên Colab hiện tại và CI trên GitHub sau khi push.
 - Lustre thật và L0/L1/L2 nếu giảng viên yêu cầu.
-- Báo cáo, slide và bằng chứng demo theo [checklist](CHECKLIST_NOP.md).
+- Báo cáo, slide và bằng chứng demo theo checklist nghiệm thu bên dưới.
+
+## 6. Checklist nghiệm thu đồ án
+
+- [x] Mã nguồn sạch, README chi tiết, hướng dẫn cài đặt và chạy hệ thống rõ ràng.
+- [x] Pipeline ETL, làm sạch dữ liệu, khử trùng lặp và chia tập theo thời gian bằng PySpark.
+- [x] Hạ tầng HDFS (NameNode, DataNode) và Alluxio (Master, Worker) hoạt động ổn định.
+- [x] Thực nghiệm lưu trữ H0/H1/H2 đầy đủ (đo đạc trên cả 1 máy và 2 máy qua mạng Tailscale VPN).
+- [x] Thuật toán Explicit ALS có đánh giá xếp hạng (NDCG@10, Precision@10, Recall@10, RMSE, MAE).
+- [x] Tầng phục vụ trực tuyến (FastAPI + NumPy) tính toán Fold-in tức thời trong RAM (<100ms).
+- [x] Giao diện web Laravel hoàn chỉnh: đăng ký/đăng nhập, xem catalog, xem trailer, chấm điểm sao, hiển thị gợi ý cá nhân hóa và bảng điều khiển Admin Dashboard.
+- [x] Cơ chế tự động hóa: snapshot MongoDB, ghép dữ liệu, retrain định kỳ và tự động rollback an toàn.
+- [x] Bộ báo cáo thực nghiệm đầy đủ ([docs/reports/2026-10-20/bao-cao-thuc-nghiem.md](reports/2026-10-20/bao-cao-thuc-nghiem.md)), biểu đồ trực quan và bằng chứng đo đạc được lưu trữ trong `experiments/`.
 
 Báo cáo VPN ngày 12/10/2026 thuộc hạ tầng cũ. Không gắn số đo cũ cho máy A mới. Metrics model retrain là kế thừa từ đánh giá trước, không phải một kết quả chất lượng mới.

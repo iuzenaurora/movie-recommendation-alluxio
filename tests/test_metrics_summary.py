@@ -97,7 +97,7 @@ class MetricsTests(unittest.TestCase):
             self.assertFalse(report['warnings'])
             out = root/'output'; m.save_report(report, out)
             self.assertEqual(len(list(out.iterdir())), 5)
-            self.assertIn('không kết luận cache hit chính xác 100%', (out/'report.md').read_text())
+            self.assertIn('không kết luận cache hit chính xác 100%', (out/'report.md').read_text(encoding='utf-8'))
             with self.assertRaisesRegex(ValueError, 'Output exists'):
                 m.save_report(report, out)
 

@@ -1,0 +1,108 @@
+{
+  "datasetVersion": "ml-5b41ebbd9d02",
+  "alsParams": {
+    "rank": 20,
+    "regParam": 0.1,
+    "maxIter": 10,
+    "numUserBlocks": 16,
+    "numItemBlocks": 16,
+    "seed": 42,
+    "implicitPrefs": false,
+    "nonnegative": false,
+    "userCol": "userId",
+    "itemCol": "movieId",
+    "ratingCol": "rating",
+    "coldStartStrategy": "drop",
+    "intermediateStorageLevel": "MEMORY_AND_DISK",
+    "finalStorageLevel": "MEMORY_AND_DISK"
+  },
+  "environment": {
+    "sparkVersion": "3.5.6",
+    "master": "local[2]",
+    "driverMemory": "2g",
+    "shufflePartitions": "8",
+    "pythonVersion": "3.10.12",
+    "javaVersion": "11.0.32.1"
+  },
+  "check": {
+    "rows": 25520897,
+    "sumRatingHalfUnits": 181526772,
+    "sumUserId": 2559188292269,
+    "sumMovieId": 667985881758
+  },
+  "rows": [
+    {
+      "phase": "readMaterializeSeconds",
+      "label": "H0",
+      "runs": 5,
+      "medianSeconds": 33.860022286004096,
+      "iqrSeconds": 9.44450963199779,
+      "speedupVsDirect": 1.0
+    },
+    {
+      "phase": "readMaterializeSeconds",
+      "label": "H1",
+      "runs": 5,
+      "medianSeconds": 38.846852062000835,
+      "iqrSeconds": 5.357662960996095,
+      "speedupVsDirect": 0.871628471515849
+    },
+    {
+      "phase": "readMaterializeSeconds",
+      "label": "H2",
+      "runs": 5,
+      "medianSeconds": 38.43964992999827,
+      "iqrSeconds": 12.984511137998197,
+      "speedupVsDirect": 0.8808618795349581
+    },
+    {
+      "phase": "fitMaterializeSeconds",
+      "label": "H0",
+      "runs": 5,
+      "medianSeconds": 367.58950702699804,
+      "iqrSeconds": 85.11084410799958,
+      "speedupVsDirect": 1.0
+    },
+    {
+      "phase": "fitMaterializeSeconds",
+      "label": "H1",
+      "runs": 5,
+      "medianSeconds": 372.8427200139995,
+      "iqrSeconds": 55.49488292300521,
+      "speedupVsDirect": 0.9859103780092469
+    },
+    {
+      "phase": "fitMaterializeSeconds",
+      "label": "H2",
+      "runs": 5,
+      "medianSeconds": 353.8582899219982,
+      "iqrSeconds": 13.978968340001302,
+      "speedupVsDirect": 1.038804282663624
+    },
+    {
+      "phase": "readPlusFitSeconds",
+      "label": "H0",
+      "runs": 5,
+      "medianSeconds": 400.03731802499533,
+      "iqrSeconds": 113.38943664700491,
+      "speedupVsDirect": 1.0
+    },
+    {
+      "phase": "readPlusFitSeconds",
+      "label": "H1",
+      "runs": 5,
+      "medianSeconds": 413.76975510399643,
+      "iqrSeconds": 58.7723628560052,
+      "speedupVsDirect": 0.9668114043870858
+    },
+    {
+      "phase": "readPlusFitSeconds",
+      "label": "H2",
+      "runs": 5,
+      "medianSeconds": 392.2979398519965,
+      "iqrSeconds": 44.49354891999974,
+      "speedupVsDirect": 1.0197283171456846
+    }
+  ],
+  "note": "One repeat is a single observation; do not infer variability or stable speedups."
+}

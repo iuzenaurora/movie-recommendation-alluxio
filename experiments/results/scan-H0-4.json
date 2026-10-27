@@ -1,0 +1,19 @@
+{
+  "timestampUTC": "2026-10-10T17:52:50.413628+00:00",
+  "label": "H0",
+  "repeat": 4,
+  "task": "scan",
+  "input": "hdfs://namenode:9000/datasets/ml32m-full-v1/ratings",
+  "seconds": 10.849401735000129,
+  "check": {
+    "rows": 32000204,
+    "sumRating": 113293383.0,
+    "sumTimestamp": 40807978535549148
+  },
+  "sparkVersion": "3.5.6",
+  "master": "local[2]",
+  "shufflePartitions": "8",
+  "timingScope": "read+materialized action, Spark startup excluded; no explicit DataFrame persist",
+  "osCacheState": "uncontrolled; not claimed cold",
+  "datasetVersion": "ml-5b41ebbd9d02"
+}

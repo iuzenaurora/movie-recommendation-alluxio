@@ -1,0 +1,318 @@
+1. Giới thiệu về công nghệ sử dụng:
+    - HDFS:
+    - Alluxio:
+    - Apache Spark, Spark MLlib - Explicit ALS:
+    - MongoDB, PyMongo, SQLite:
+    - Web: PHP, Laravel, tailwind
+    - Python
+    - Docker
+    - Tailscale
+2. Phương pháp triển khai dự án từ các công nghệ (Pipeline dự án)
+    - Dự án xây dựng giao diện bằng Laravel,
+    cung cấp dịch vụ gợi ý bằng FastAPI và NumPy.PySpark
+    xử lý dữ liệu và huấn luyện Explicit ALS; HDFS lưu
+    dataset, Alluxio hỗ trợ cache. MongoDB lưu đánh giá,
+    SQLite lưu tài khoản, và Docker Compose triển khai các
+    dịch vụ.
+    - Các chỉ số đánh giá.
+3. Triển khai thực nghiệm
+    - Dataset
+    - Cấu hình
+    - 2 máy
+    (Nói về cách triển khai thực tế trên máy như thế nào...)
+4. Đánh giá và kết luận
+    - Đánh giá và nhận xét kết quả lấy dữ liệu trên 3 thang đo H0, H1, H2 của Alluxio
+    - Đánh giá và nhận xét kết quả suy luận sở thích của người dùng ở 3 loại gợi ý và điểm số
+    - Kết luận
+
+
+---------------------------------------------------------------------------------------------
+Phạm vi của dự án:
+    Website hỗ trợ khám phá phim, xem trailer và nhận gợi ý, không cung cấp dịch vụ phát
+    toàn bộ nội dung phim.
+
+    Hệ thống có 4 cách gợi ý:
+        1. ALS fold-in: cá nhân hóa dựa trên các phim đã chấm sao.
+        2. Hybrid: kết hợp điểm ALS với độ phù hợp thể loại.
+        3. Theo gu: chọn thể loại yêu thích từ lịch sử, sau đó lọc và xếp hạng bằng ALS.
+        4. Phổ biến/cộng đồng: cung cấp danh sách chung và làm phương án dự phòng.
+    Trong cấu hình thực nghiệm 2 máy:
+        - Máy Phát Trần: chạy HDFS.
+        - Máy Phát Nguyễn: chạy Spark và Alluxio.
+        (2 máy được kết nối thông qua ip ảo của Tailscale)
+    
+- Lời thuyết trình slide HDFS:
+    Trong dự án, HDFS giữ vai trò lưu trữ dataset phục vụ pipeline dữ liệu. NameNode
+    quản lý thông tin tệp và vị trí khối, còn DataNode lưu nội dung thực tế. Nhóm đặt
+    HDFS trên máy A để Spark trên máy B có thể truy cập dữ liệu qua mạng và thực
+    nghiệm tác động của lớp cache Alluxio.
+
+- Lời thuyết trình slide Alluxio:
+    Alluxio được sử dụng làm lớp cache trước HDFS. Nhóm kỳ vọng dữ liệu đã được nạp
+    vào cache sẽ giúp những lần đọc tiếp theo thuận lợi hơn. Tuy nhiên, lần đọc đầu
+    có thể phát sinh thêm chi phí, nên nhóm tổ chức ba kịch bản H0, H1 và H2 để đo
+    tác động thực tế.
+
+- Lời thuyết trình slide Apache Spark, PySpark và Spark MLlib:
+    Nhóm sử dụng PySpark để xây dựng pipeline xử lý dữ liệu bằng Python. Dữ liệu 
+    được biểu diễn bằng DataFrame để thực hiện lọc, kết hợp và chia tập. Sau đó,
+    Spark MLlib huấn luyện mô hình ALS từ tập train.
+
+- Lời thuyết trình slide MongoDB, PyMongo và SQLite:
+    Nhóm tách dữ liệu tài khoản khỏi dữ liệu phục vụ gợi ý. Laravel quản lý tài
+    khoản bằng SQLite, còn FastAPI truy cập hồ sơ và đánh giá trong MongoDB thông
+    qua PyMongo. Dataset huấn luyện được lưu riêng dưới dạng Parquet trên HDFS.
+
+- Lời thuyết trình slide PHP, Laravel, Blade và Tailwind CSS:
+    Laravel đảm nhiệm lớp website và quản lý tài khoản. Blade tạo các trang giao
+    diện, Tailwind cùng CSS tùy chỉnh định dạng cách hiển thị, còn JavaScript hỗ
+    trợ tương tác. Khi cần dữ liệu gợi ý, Laravel gửi yêu cầu đến dịch vụ FastAPI.
+
+- Lời thuyết trình slide Python, FastAPI và NumPy:
+    Sau khi Spark huấn luyện và xuất vector, FastAPI nạp các vector cần thiết vào
+    RAM. Khi người dùng yêu cầu gợi ý, NumPy thực hiện fold-in và tính điểm xếp
+    hạng. Vì vậy, hệ thống không cần chạy lại một công việc Spark cho mỗi lần người
+    dùng bấm xem gợi ý.
+
+- Lời thuyết trình slide Docker và Docker Compose:
+    Docker giúp nhóm đóng gói từng dịch vụ cùng các thư viện tương ứng. Docker
+    Compose mô tả cách các dịch vụ kết nối và khởi động. Dữ liệu cần giữ lại được
+    đặt trong volume hoặc thư mục được mount, để không phụ thuộc hoàn toàn vào
+    container.
+
+- Tailscale:
+    Tailscale là công cụ tạo mạng riêng giữa các thiết bị, sử dụng công nghệ WireGuard
+    để bảo vệ kết nối.
+
+    Trong dự án, Tailscale kết nối máy A và máy B để các dịch vụ trên máy B có thể
+    truy cập HDFS trên máy A.
+
+    Vai trò chính:
+        + Cung cấp địa chỉ mạng riêng cho hai máy.
+        + Hỗ trợ kết nối khi hai máy không nằm trong cùng mạng nội bộ.
+        + Tạo đường kết nối cho các dịch vụ cần giao tiếp giữa hai máy.
+
+    Tailscale không thay thế HDFS, Alluxio hoặc Spark. Nó đảm nhiệm phần kết nối
+    mạng; hiệu năng đường truyền vẫn là yếu tố có thể ảnh hưởng kết quả thực nghiệm.
+
+    Lời thuyết trình gợi ý:
+        Tailscale giúp hai máy tham gia cùng một mạng riêng. Nhờ đó, máy B có thể
+        truy cập các dịch vụ HDFS trên máy A. Khi đánh giá kết quả, nhóm cũng xem
+        điều kiện mạng là một yếu tố ảnh hưởng đến thời gian truy cập dữ liệu.
+
+- Lời thuyết trình slide Kiến trúc tổng thể:
+    Hệ thống được chia thành phần xử lý theo lô và phần phục vụ trực tuyến. Spark
+    đảm nhiệm chuẩn bị dữ liệu và huấn luyện mô hình. Sau khi huấn luyện, API nạp
+    các vector vào RAM để tính gợi ý khi có yêu cầu. Laravel quản lý tài khoản và
+    giao diện, còn MongoDB lưu lịch sử đánh giá phục vụ cá nhân hóa.
+
+
+---------------------Luồng xử lý từng bước theo pipeline-------------------------
+2.2. Pipeline chuẩn bị dữ liệu
+Bước 1: Thu thập dữ liệu MovieLens
+Dự án sử dụng các tệp chính:
+Tệp	Nội dung	Vai trò
+ratings.csv	Mã người dùng, mã phim, điểm sao, thời gian	Nguồn tương tác để học mô hình
+movies.csv	Mã phim, tên phim, thể loại	Danh mục và thông tin thể loại
+links.csv	Mã phim liên kết với các nguồn như IMDb	Hỗ trợ hiển thị thông tin phim
+
+
+Các đánh giá thể hiện phản hồi tường minh: người dùng chủ động cho biết mức độ yêu thích bằng điểm sao. Đây là cơ sở lựa chọn Explicit ALS.
+Bước 2: Kiểm tra và làm sạch bằng PySpark
+Các bước xử lý gồm:
+1. Kiểm tra mã người dùng và mã phim hợp lệ.
+2. Loại điểm bị thiếu, không phải số hoặc ngoài khoảng 0,5–5 sao.
+3. Kiểm tra điểm theo bước 0,5 sao.
+4. Loại thời gian bị thiếu hoặc âm.
+5. Xóa dòng trùng hoàn toàn.
+6. Với nhiều đánh giá của cùng một người cho cùng một phim, giữ bản mới nhất.
+7. Kết hợp với danh mục phim để loại đánh giá có mã phim không tồn tại.
+Các kỹ thuật chính:
+Kỹ thuật	Ý nghĩa
+Filter	Giữ những dòng đáp ứng điều kiện
+Deduplication	Loại dữ liệu trùng
+Window Function	Xử lý trong từng nhóm dữ liệu, ở đây là từng cặp người dùng–phim
+row_number	Đánh số các dòng đã sắp xếp để chọn bản cần giữ
+Inner join	Chỉ giữ những bản ghi có mã khớp ở cả hai bảng
+
+
+Nếu hai đánh giá có cùng thời gian, quy tắc hiện tại ưu tiên điểm cao hơn để lựa chọn một bản ghi nhất quán.
+Điểm cần trình bày đúng: dữ liệu gốc có thể đã sạch. Việc triển khai bộ lọc không đồng nghĩa thực tế phải có nhiều dòng bị loại. Báo cáo cần dựa vào số lượng trước và sau xử lý.
+Bước 3: Chia train, validation và test
+Lịch sử được sắp xếp theo thời gian của từng người dùng rồi chia gần đúng:
+Tập	Tỷ lệ	Mục đích
+Train	80%	Học vector người dùng và phim
+Validation	10%	Chọn cấu hình mô hình
+Test	10%	Đánh giá sau khi đã chọn cấu hình
+
+
+Người dùng cần có ít nhất 5 đánh giá để tham gia cách chia này. Tỷ lệ thực tế có chênh lệch do làm tròn theo từng người.
+Chia theo thời gian giúp mô phỏng tình huống dùng lịch sử trước đó để dự đoán sở thích về sau.
+Rò rỉ dữ liệu — data leakage xảy ra khi thông tin cần được giữ lại để kiểm thử lại được sử dụng trong quá trình học hoặc tính sở thích. Vì vậy:
+- Không dùng test để chọn tham số.
+- Không dùng điểm test để tính vector fold-in.
+- Không dùng điểm test để xác định thể loại yêu thích trong phép đánh giá.
+Bước 4: Lưu dữ liệu đã xử lý
+Dữ liệu được lưu dưới dạng Parquet, một định dạng theo cột phù hợp với xử lý bằng Spark.
+Dataset có các phần như danh mục phim, đánh giá và các tập dữ liệu đã chia. Dataset sau đó được đưa lên HDFS.
+Đi kèm là manifest, tệp mô tả:
+- Phiên bản dataset.
+- Số dòng dữ liệu.
+- Số lượng bản ghi của từng tập.
+- Chính sách chia và xử lý trùng.
+- Checksum các tệp.
+Checksum là mã kiểm tra giúp phát hiện nội dung tệp đã thay đổi.
+Lời thuyết trình gợi ý cho pipeline dữ liệu:
+Nhóm đọc các tệp MovieLens bằng PySpark, kiểm tra tính hợp lệ, xử lý trùng lặp và kết hợp với danh mục phim. Sau đó, lịch sử từng người được chia theo thời gian thành train, validation và test. Kết quả được lưu bằng Parquet và đưa lên HDFS, kèm manifest để theo dõi phiên bản và kiểm tra tính toàn vẹn.
+
+2.3. Pipeline huấn luyện Explicit ALS
+Bước 5: Spark đọc dữ liệu
+Trong pipeline sử dụng Alluxio, Spark truy cập dữ liệu qua Alluxio:
+- Nếu đã có trong cache, dữ liệu được phục vụ từ cache.
+- Nếu chưa có, Alluxio truy cập HDFS nền theo cấu hình.
+Trong thực nghiệm, nhóm bổ sung nhánh đọc HDFS trực tiếp để có mốc so sánh.
+Bước 6: Huấn luyện mô hình
+Explicit ALS tìm vector người dùng và phim sao cho điểm dự đoán gần với các điểm đã quan sát.
+Hàm mục tiêu có thể trình bày dưới dạng:
+\[
+\min_{P,Q}
+\sum_{(u,i)\in\Omega}
+\left(r_{ui}-p_u^\mathsf{T}q_i\right)^2
++\text{thành phần điều chuẩn}
+\]
+Trong đó:
+- \(\Omega\): các cặp người dùng–phim có đánh giá trong train.
+- \(r_{ui}\): điểm sao thực tế.
+- \(p_u^\mathsf{T}q_i\): điểm sao dự đoán.
+- Điều chuẩn: hạn chế vector có giá trị quá lớn và giảm nguy cơ học quá khớp.
+ALS giữ một nhóm vector cố định để giải nhóm còn lại, rồi luân phiên cập nhật qua các vòng lặp.
+Cấu hình mô hình hiện tại:
+- rank = 20.
+- regParam = 0,1.
+- maxIter = 10.
+Bước 7: Chọn và đánh giá mô hình
+Mã train hỗ trợ thử các giá trị rank và regParam được cấu hình.
+Quy tắc chọn hiện tại:
+1. Ưu tiên NDCG trên validation cao hơn.
+2. Nếu bằng nhau, ưu tiên RMSE thấp hơn.
+Sau khi chọn cấu hình, hệ thống đánh giá trên test.
+Cần phân biệt khả năng tìm kiếm tham số của chương trình với số cấu hình đã thực sự chạy trong một đợt thí nghiệm. Báo cáo chỉ nêu những lượt thử có bằng chứng đã lưu.
+Bước 8: Xuất gói model
+Gói model chứa các thành phần phục vụ ứng dụng:
+Thành phần	Mục đích
+Vector phim và người dùng	Biểu diễn đặc điểm ẩn đã học
+Danh mục phim	Tra cứu thông tin phim
+Danh sách phim ứng viên	Kiểm soát phim được phép đưa vào gợi ý
+Dữ liệu phổ biến	Hỗ trợ chế độ phổ biến và dự phòng
+Manifest và checksum	Ghi phiên bản, cấu hình, chỉ số và tính toàn vẹn
+
+
+Lời thuyết trình gợi ý:
+Sau khi đọc dữ liệu, Spark huấn luyện ALS để học vector người dùng và phim. Cấu hình được chọn bằng validation, sau đó đánh giá bằng test. Model được xuất thành một gói có vector, danh mục, chính sách ứng viên và manifest để API có thể nạp và phục vụ.
+
+2.4. Pipeline nhận đánh giá trên website
+Bước 9: Người dùng đăng nhập
+Laravel kiểm tra thông tin tài khoản trong SQLite và quản lý phiên đăng nhập.
+Tài khoản web được liên kết với một mã hồ sơ gợi ý. Tài khoản này khác mã người dùng trong MovieLens.
+Bước 10: Người dùng chấm sao
+Luồng xử lý:
+1. Người dùng chọn phim và chấm từ 0,5 đến 5 sao.
+2. Laravel gửi yêu cầu đến FastAPI.
+3. FastAPI kiểm tra phim và giá trị điểm.
+4. MongoDB lưu đánh giá theo hồ sơ và mã phim.
+5. Hệ thống ghi nhận thay đổi để phục vụ cập nhật.
+Nếu chấm lại cùng phim, điểm mới thay thế điểm trước đó. Khi xóa đánh giá, hệ thống ghi nhận trạng thái xóa để đánh giá đó không xuất hiện trở lại từ lịch sử khởi tạo.
+Đánh giá mới được dùng cho lần tính gợi ý tiếp theo, không cần huấn luyện lại toàn bộ ALS ngay sau mỗi lần chấm sao.
+2.5. Phương pháp tính các danh sách gợi ý
+A. ALS fold-in thuần
+Fold-in tính vector người dùng từ các điểm sao hiện có, trong khi giữ vector phim đã huấn luyện cố định.
+Gọi:
+- \(Q\): ma trận vector của các phim người dùng đã chấm và có trong model.
+- \(r\): vector điểm sao tương ứng.
+- \(n\): số đánh giá có vector phim hỗ trợ.
+- \(\lambda\): hệ số điều chuẩn.
+- \(I\): ma trận đơn vị.
+Vector người dùng được tính bằng cách giải:
+\[
+\left(Q^\mathsf{T}Q+\lambda nI\right)p_u
+=Q^\mathsf{T}r
+\]
+Dự án dùng phép giải hệ phương trình bằng NumPy.
+Sau đó, với mỗi phim ứng viên:
+\[
+s_{\text{ALS}}(u,i)=p_u^\mathsf{T}q_i
+\]
+Hệ thống loại phim đã đánh giá, sắp xếp điểm giảm dần và lấy Top 10.
+Ví dụ giải thích:
+Người dùng chấm một số phim. Hệ thống lấy vector của những phim đó cùng điểm sao để tính vector người dùng. Vector mới được dùng để chấm điểm các phim chưa đánh giá. Phim có điểm dự đoán cao hơn được ưu tiên trong danh sách.
+
+Điểm ALS là kết quả dự đoán từ tích vô hướng, không phải xác suất thích phim và có thể vượt ngoài thang 0,5–5.
+B. Hybrid: ALS kết hợp gu thể loại
+Hybrid bổ sung tín hiệu thể loại vào điểm ALS.
+Quá trình gồm:
+1. Đọc thể loại của các phim đã chấm.
+2. Điểm trên 3 sao tạo tín hiệu dương.
+3. Điểm dưới 3 sao tạo tín hiệu âm.
+4. Chia đóng góp giữa các thể loại của phim.
+5. Chuẩn hóa hồ sơ thể loại.
+6. Tính độ phù hợp của từng phim ứng viên.
+Điểm cuối cùng:
+\[
+s_{\text{Hybrid}}(u,i)
+=s_{\text{ALS}}(u,i)
++0{,}75\times a(u,i)
+\]
+Trong đó \(a(u,i)\) là độ phù hợp thể loại với hồ sơ sở thích.
+Ý nghĩa: hai phim có điểm ALS gần nhau có thể được đổi thứ tự nếu một phim phù hợp với gu thể loại hơn.
+Đây vẫn là điểm dùng để xếp hạng, không được diễn giải trực tiếp thành số sao thực tế.
+C. Gợi ý theo gu
+Phương pháp này thực hiện:
+1. Chỉ xét các đánh giá trên 3 sao.
+2. Cộng tín hiệu theo thể loại.
+3. Chọn thể loại có trọng số cao nhất.
+4. Lọc ứng viên theo thể loại đó.
+5. Dùng điểm ALS để xếp hạng trong danh sách đã lọc.
+Khác biệt với Hybrid:
+Hybrid	Theo gu
+Cộng độ phù hợp thể loại vào điểm ALS	Lọc theo thể loại yêu thích trước khi xếp hạng
+Vẫn có thể đề xuất phim thuộc thể loại khác	Danh sách bị giới hạn bởi bộ lọc thể loại
+Sở thích thể loại gồm tín hiệu dương và âm	Xác định thể loại yêu thích từ các đánh giá dương
+
+
+Nếu không xác định được thể loại yêu thích, bộ lọc thể loại được để trống.
+D. Phổ biến và phương án dự phòng
+Chế độ phổ biến xếp phim theo số lượt đánh giá của nguồn dữ liệu tương ứng, đồng thời loại phim đã có trong lịch sử.
+Nếu lịch sử không có đánh giá nào được model hỗ trợ, hệ thống có thể dùng danh sách phổ biến làm dự phòng.
+Trong đánh giá chất lượng offline, mức phổ biến chỉ được tính từ train để tránh rò rỉ test. Dữ liệu phổ biến của gói phục vụ trên web có phạm vi riêng và đã được ghi rõ trong báo cáo.
+Lời thuyết trình gợi ý:
+Nhóm triển khai ba cách cá nhân hóa và một baseline phổ biến. ALS fold-in dựa trực tiếp vào vector và điểm sao. Hybrid cộng thêm độ phù hợp thể loại, còn theo gu lọc thể loại yêu thích trước khi xếp hạng. Phổ biến cung cấp danh sách chung và hỗ trợ trường hợp thiếu lịch sử phù hợp.
+
+2.6. Pipeline cập nhật và huấn luyện lại tự động
+Đánh giá mới được dùng ngay cho fold-in. Để cập nhật các vector phim và mô hình tổng thể, hệ thống tổ chức một luồng retrain riêng.
+Bước 11: Theo dõi thay đổi
+Worker Python theo dõi cấu hình lịch chạy và số thay đổi đánh giá. Khi đáp ứng điều kiện đã cấu hình, hệ thống tạo tác vụ cập nhật.
+Worker là tiến trình nền thực hiện các công việc mà người dùng không cần thao tác từng bước.
+Bước 12: Chụp snapshot
+Snapshot là bản chụp dữ liệu tại một thời điểm để tạo đầu vào nhất quán.
+Trong luồng hiện tại, API được tạm dừng khi thực hiện snapshot/retrain nhằm hạn chế dữ liệu thay đổi trong quá trình cập nhật.
+Bước 13: Tạo dataset và model mới
+Worker điều phối:
+1. Ghép snapshot với dữ liệu nền.
+2. Tạo dataset phiên bản mới.
+3. Đưa dataset lên HDFS.
+4. Spark đọc qua Alluxio.
+5. Huấn luyện lại theo cấu hình kế thừa.
+6. Xuất gói model mới.
+Bước 14: Kiểm tra và kích hoạt
+Hệ thống kiểm tra gói model và checksum trước khi chuyển phiên bản.
+Sau khi kích hoạt:
+- API khởi động lại.
+- Kiểm tra sức khỏe dịch vụ.
+- Xác nhận API đã nạp đúng model.
+Nếu kích hoạt thất bại, hệ thống có cơ chế rollback, tức khôi phục model trước.
+Giới hạn cần nêu: retrain hiện kế thừa các chỉ số kiểm thử cũ. Gói model mới hợp lệ chưa chứng minh chất lượng đã tăng; cần một phép đánh giá phù hợp để đưa ra kết luận đó.
+
+------------------------------------------------------------------------------------
+- Lời thuyết trình slide Dữ liệu thực nghiệm:
+    Nhóm sử dụng MovieLens 32M với hơn 32 triệu đánh giá từ khoảng 201 nghìn người dùng. Dữ liệu được kiểm tra bằng PySpark, chia theo thời gian của từng người dùng và lưu dưới dạng Parquet. Trong đợt xử lý này, các bản ghi đều đáp ứng điều kiện kiểm tra nên số lượng đánh giá được giữ nguyên.
+

@@ -1,0 +1,56 @@
+{
+  "task": "als",
+  "label": "H2",
+  "repeat": 5,
+  "datasetVersion": "ml-5b41ebbd9d02",
+  "timestampUTC": "2026-10-12T15:24:39.034129+00:00",
+  "input": "alluxio://alluxio-master:19998/datasets/ml32m-full-v1/split/split=train",
+  "expectedTrainRows": 25520897,
+  "check": {
+    "rows": 25520897,
+    "sumRatingHalfUnits": 181526772,
+    "sumUserId": 2559188292269,
+    "sumMovieId": 667985881758
+  },
+  "readMaterializeSeconds": 30.047141281999757,
+  "fitMaterializeSeconds": 257.9605460290004,
+  "readPlusFitSeconds": 288.00768731100015,
+  "factorCounts": {
+    "users": 200948,
+    "movies": 71288
+  },
+  "alsParams": {
+    "rank": 20,
+    "regParam": 0.1,
+    "maxIter": 10,
+    "numUserBlocks": 16,
+    "numItemBlocks": 16,
+    "seed": 42,
+    "implicitPrefs": false,
+    "nonnegative": false,
+    "userCol": "userId",
+    "itemCol": "movieId",
+    "ratingCol": "rating",
+    "coldStartStrategy": "drop",
+    "intermediateStorageLevel": "MEMORY_AND_DISK",
+    "finalStorageLevel": "MEMORY_AND_DISK"
+  },
+  "environment": {
+    "sparkVersion": "3.5.6",
+    "master": "local[2]",
+    "driverMemory": "2g",
+    "shufflePartitions": "8",
+    "pythonVersion": "3.10.12",
+    "javaVersion": "11.0.32.1"
+  },
+  "timingScope": "read+persist+aggregate; ALS.fit+user/item factor counts; Spark startup excluded",
+  "dataframeStorageLevel": "MEMORY_AND_DISK",
+  "osCacheState": "uncontrolled; cold refers only to Alluxio cache",
+  "warmLoadSecondsIncluded": false,
+  "excludedWork": [
+    "validation/test",
+    "parameter search",
+    "model export",
+    "web inference"
+  ]
+}

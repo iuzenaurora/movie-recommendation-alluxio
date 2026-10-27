@@ -1,0 +1,42 @@
+# Independent project/network/database. Never mount the application's MongoDB volume.
+services:
+  mongo:
+    image: mongo:7.0
+    tmpfs: ["/data/db:size=1073741824"]
+    mem_limit: 768m
+    healthcheck:
+      test: [CMD, mongosh, --quiet, --eval, "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  api:
+    build: {context: ., dockerfile: serving/Dockerfile}
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DATABASE: movies_benchmark_report
+      MODEL_DIR: /models/current
+      SERVICE_TOKEN_FILE: /evaluation-runtime/service-token
+      OPENBLAS_NUM_THREADS: "1"
+      OMP_NUM_THREADS: "1"
+    volumes:
+      - ./models:/models:ro
+      - evaluation-runtime:/evaluation-runtime
+    depends_on: {mongo: {condition: service_healthy}}
+    mem_limit: 1g
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 5s
+      timeout: 6s
+      start_period: 120s
+      retries: 30
+  evaluator:
+    build: {context: ., dockerfile: infra/evaluation/Dockerfile}
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - evaluation-runtime:/evaluation-runtime:ro
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+    mem_limit: 3g
+volumes:
+  evaluation-runtime:

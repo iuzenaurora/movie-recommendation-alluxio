@@ -1,0 +1,14 @@
+{
+  "complete": true,
+  "scope": "offline quality and API HTTP, not browser E2E",
+  "createdAtUTC": "2026-10-20T08:33:31.237488+00:00",
+  "checksums": {
+    "quality": "0f6dbcfa2dfb16e9ca555abe637c967b0ee99be6c5c81443d01368d2a5fc2abc",
+    "api": "0dc964de6b47630e03146ad5aa6f40efe7881a7e4c38915cbfa1fcd07c0454e4",
+    "report": "edffecf8181141544950778ee0cdce89b0ccc2f1f108ab7884d8bf6f233accb1",
+    "figures/api-latency.png": "84956de18eeffe266ee8a8a98e9bdfec8f91e6825d7d01f8be679775577f3e46",
+    "figures/api-latency.svg": "db8d44e693a7bf8331f2d0538e9596ebeeab86dc2d74dbddef0cd048d574ea51",
+    "figures/ndcg.png": "7e8e3a111a273722e08f33f361096da459f319538f059acd884ad07bf66db9b7",
+    "figures/ndcg.svg": "fff923656c8f26fdb54b678769dd32263400b5d7b2df36857fe41b59011a998f"
+  }
+}

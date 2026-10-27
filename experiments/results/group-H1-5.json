@@ -1,0 +1,19 @@
+{
+  "timestampUTC": "2026-10-10T18:02:56.346933+00:00",
+  "label": "H1",
+  "repeat": 5,
+  "task": "group",
+  "input": "alluxio://alluxio-master:19998/datasets/ml32m-full-v1/ratings",
+  "seconds": 17.643888981999908,
+  "check": {
+    "groups": 84432,
+    "rows": 32000204,
+    "sumRating": 113293383.0
+  },
+  "sparkVersion": "3.5.6",
+  "master": "local[2]",
+  "shufflePartitions": "8",
+  "timingScope": "read+materialized action, Spark startup excluded; no explicit DataFrame persist",
+  "osCacheState": "uncontrolled; not claimed cold",
+  "datasetVersion": "ml-5b41ebbd9d02"
+}
