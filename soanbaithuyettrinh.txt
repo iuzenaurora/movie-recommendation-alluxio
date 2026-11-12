@@ -316,3 +316,50 @@ Giới hạn cần nêu: retrain hiện kế thừa các chỉ số kiểm thử
 - Lời thuyết trình slide Dữ liệu thực nghiệm:
     Nhóm sử dụng MovieLens 32M với hơn 32 triệu đánh giá từ khoảng 201 nghìn người dùng. Dữ liệu được kiểm tra bằng PySpark, chia theo thời gian của từng người dùng và lưu dưới dạng Parquet. Trong đợt xử lý này, các bản ghi đều đáp ứng điều kiện kiểm tra nên số lượng đánh giá được giữ nguyên.
 
+
+------Hướng dẫn demo-------
+Phần 1:
+1. Mở trình duyệt vào: http://localhost:8080
+- Mở trình duyệt vào: http://localhost:8080
+- "Thưa Thầy/Cô, khi một người dùng mới vừa tạo tài khoản và chưa chấm sao cho bất kỳ phim nào (bài toán Cold-start), hệ thống sẽ tự động kích hoạt Chiến lược Phổ biến (Baseline) để hiển thị các bộ phim đại chúng có số lượt đánh giá cao nhất từ tập Train MovieLens 32M."
+
+2. Chấm điểm mô phỏng sở thích (Gu rõ ràng):
+- Thao tác: Tìm và chấm điểm 3 – 4 bộ phim Hoạt hình / Phiêu lưu (ví dụ: Toy Story, Finding Nemo, The Lion King) mức 5 sao; chấm 1 phim Kinh dị/Hành động mức 1 sao.
+- Thao tác: Vào tab "Dành cho bạn" (hoặc xem trang Gợi ý).
+- "Sau khi em vừa chấm điểm, hệ thống đã ghi nhận tương tác vào MongoDB và tính toán lại danh sách Top 10 ngay lập tức mà không cần phải chạy lại cả Spark Job."
+
+3. So sánh trực quan 4 chiến lược gợi ý trên giao diện:
+- Chuyển qua lại giữa các tab gợi ý:
+    + ALS Fold-in (Thuần): Giải thích rằng đây là tích vô hướng thuần túy giữa vector người dùng vừa tính và vector phim đã học từ Spark MLlib.
+    + Hybrid (ALS + Gu thể loại): Chỉ ra cho Thầy/Cô thấy danh sách này ưu tiên các phim Animation/Adventure hơn vì đã được cộng thêm trọng số thể loại (sALS + 0.75 × Affinity).
+    + Theo gu (Lọc thể loại + ALS): Hệ thống phát hiện gu nổi bật nhất là Animation, tự động lọc trước rồi mới xếp hạng.
+    + Phổ biến: Danh sách phim chung của cộng đồng.
+- "Kết quả này phản ánh chính xác kết quả thực nghiệm ở Slide 32 và 33: khi người dùng có ít lịch sử (last-5), phương pháp Hybrid và Theo gu giúp định hướng chính xác hơn nhiều so với ALS thuần."
+
+Phần 2:
+1. Bật F12 (Inspect Element) -> Tab Network:
+- Thao tác: Nhấn F5 hoặc đổi tab chiến lược gợi ý, bấm vào request /api/recommendations hoặc request gửi từ Web.
+- Chỉ vào trường JSON trả về:
+    + milliseconds: ~50ms – 100ms
+    + method: ALS fold-in + genre reranking
+    + historySize: số lượng phim vừa chấm.
+- "Thưa Thầy/Cô, một thách thức lớn trong hệ thống Big Data là độ trễ. Nếu mỗi lần người dùng bấm web mà phải submit một job lên cụm Spark thì sẽ mất vài phút. Nhóm em đã giải quyết bằng kiến trúc 2 tầng (Slide 16):
+    + Spark chỉ làm nhiệm vụ huấn luyện Offline định kỳ và xuất ra ma trận đặc trưng factors.npz.
+    + FastAPI nạp ma trận này sẵn vào RAM. Khi người dùng chấm sao, NumPy thực hiện thuật toán ALS Fold-in giải phương trình (Q⊤Q+λnI)pu​=Q⊤r chỉ trong vài mili-giây, giúp phản hồi dưới 100ms với tỷ lệ lỗi 0% như đo đạc ở Slide 16."
+
+Phần 3: Trung Tâm Quản Trị Big Data, Snapshot & Alluxio (3 phút)
+1. Truy cập Trang Quản Trị: http://localhost:8080/admin/jobs (Đăng nhập tài khoản admin lấy trong runtime/admin-credentials.json)
+2. Chỉ vào Trung tâm điều hành tự động hóa (Data Lifecycle):
+- Chỉ vào bộ đếm thay đổi (Pending ratings count)
+    + "Ở đây, hệ thống liên tục giám sát số lượng đánh giá mới từ người dùng web. Khi số thay đổi đạt ngưỡng (mặc định 20), worker Python sẽ tự động kích hoạt tiến trình Snapshot và Retrain."
+- Bấm vào nút xem Lịch sử Job (hoặc bấm Tạo Snapshot demo):
+    + Cho Thầy/Cô xem các bước chạy tự động: Dừng API tạm thời → Chụp Snapshot từ MongoDB → Ghép với Parquet gốc → Đẩy lên HDFS → Kích hoạt Spark retrain → Kiểm tra Checksum SHA-256 → Kích hoạt Model mới hoặc Rollback.
+3. Mở Trang Benchmark Lưu Trữ: http://localhost:8080/admin/benchmark
+- Chỉ vào bảng số liệu H0, H1, H2 (khớp với Slide 30, 31):
+    + "Đây là kết quả thực nghiệm lưu trữ được hệ thống tổng hợp trực tiếp từ log thực nghiệm:
+        . H0: Đọc trực tiếp từ HDFS qua mạng Tailscale.
+        . H1: Đọc qua Alluxio khi Cache rỗng (Cold Cache) — phát sinh độ trễ ghi vào cache.
+        . H2: Đọc qua Alluxio khi Cache đã ấm trên RAM (Warm Cache) — thời gian đọc giảm từ 50.98s xuống còn 30.84s (giảm 39.51%) và triệt tiêu toàn bộ I/O mạng từ HDFS.
+4. (Tùy chọn) Mở giao diện dịch vụ nền để tạo độ uy tín:
+- Mở tab http://localhost:19999 (Giao diện Web Alluxio): Chỉ vào phần In-Memory Cache (RAM Disk) đang chứa các block Parquet của MovieLens.
+- Mở MongoDB Compass (mongodb://127.0.0.1:27018): Cho thấy database movies với collections ratings chứa các tương tác người dùng thực.

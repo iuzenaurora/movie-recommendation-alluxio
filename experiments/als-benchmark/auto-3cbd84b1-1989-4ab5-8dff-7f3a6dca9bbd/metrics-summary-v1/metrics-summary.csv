@@ -1,0 +1,7 @@
+﻿label,metric,runs,medianMiBApprox,iqrMiBApprox
+H1,BytesReadCache,5,30.72,10.240000000000002
+H1,BytesReadRemote,5,256.0,0.0
+H1,BytesReadUfsAll,5,481.41,17.0
+H2,BytesReadCache,5,266.24,10.240000000000009
+H2,BytesReadRemote,5,266.24,0.0
+H2,BytesReadUfsAll,5,0.0,0.0

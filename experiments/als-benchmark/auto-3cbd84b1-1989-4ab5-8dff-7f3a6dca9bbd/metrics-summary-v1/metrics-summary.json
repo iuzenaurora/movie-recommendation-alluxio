@@ -1,0 +1,597 @@
+{
+  "experiment": "auto-3cbd84b1-1989-4ab5-8dff-7f3a6dca9bbd",
+  "datasetVersion": "ml-5b41ebbd9d02",
+  "trainCheck": {
+    "rows": 25520897,
+    "sumRatingHalfUnits": 181526772,
+    "sumUserId": 2559188292269,
+    "sumMovieId": 667985881758
+  },
+  "alsParams": {
+    "rank": 20,
+    "regParam": 0.1,
+    "maxIter": 10,
+    "numUserBlocks": 16,
+    "numItemBlocks": 16,
+    "seed": 42,
+    "implicitPrefs": false,
+    "nonnegative": false,
+    "userCol": "userId",
+    "itemCol": "movieId",
+    "ratingCol": "rating",
+    "coldStartStrategy": "drop",
+    "intermediateStorageLevel": "MEMORY_AND_DISK",
+    "finalStorageLevel": "MEMORY_AND_DISK"
+  },
+  "environment": {
+    "sparkVersion": "3.5.6",
+    "master": "local[2]",
+    "driverMemory": "2g",
+    "shufflePartitions": "8",
+    "pythonVersion": "3.10.12",
+    "javaVersion": "11.0.32.1"
+  },
+  "settings": {
+    "repeats": 5,
+    "source": "admin worker; current machine A",
+    "dataset": "ml32m-full-v1"
+  },
+  "repeatsPerLabel": 5,
+  "trainBytes": 275782918,
+  "units": "MiB approximations; displayed B/KB/MB/GB use powers of 1024; rounded CLI input",
+  "metricTrials": [
+    {
+      "label": "H1",
+      "repeat": 1,
+      "cacheAtStartPercent": 0.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 40.96,
+      "rpcReadMiBApprox": 256.0,
+      "ufsReadMiBApprox": 468.4,
+      "ufsRoundingUpperMiB": 468.41,
+      "ufsStatus": "observedIncrease",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 40.96,
+          "roundingLowerMiB": 30.72,
+          "roundingUpperMiB": 51.2,
+          "status": "observedIncrease",
+          "beforeDisplay": "11.58GB",
+          "afterDisplay": "11.62GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 256.0,
+          "roundingLowerMiB": 245.76,
+          "roundingUpperMiB": 266.24,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.16GB",
+          "afterDisplay": "12.41GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 468.4,
+          "roundingLowerMiB": 468.39,
+          "roundingUpperMiB": 468.41,
+          "status": "observedIncrease",
+          "beforeDisplay": "1343.15MB",
+          "afterDisplay": "1811.55MB"
+        }
+      },
+      "snapshotFiles": [
+        "H1-1-before-metrics.txt",
+        "H1-1-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H1",
+      "repeat": 2,
+      "cacheAtStartPercent": 0.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 40.96,
+      "rpcReadMiBApprox": 235.52,
+      "ufsReadMiBApprox": 426.71,
+      "ufsRoundingUpperMiB": 426.72,
+      "ufsStatus": "observedIncrease",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 40.96,
+          "roundingLowerMiB": 30.72,
+          "roundingUpperMiB": 51.2,
+          "status": "observedIncrease",
+          "beforeDisplay": "11.87GB",
+          "afterDisplay": "11.91GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 235.52,
+          "roundingLowerMiB": 225.28,
+          "roundingUpperMiB": 245.76,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.67GB",
+          "afterDisplay": "12.90GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 426.71,
+          "roundingLowerMiB": 426.7,
+          "roundingUpperMiB": 426.72,
+          "status": "observedIncrease",
+          "beforeDisplay": "1811.55MB",
+          "afterDisplay": "2238.26MB"
+        }
+      },
+      "snapshotFiles": [
+        "H1-2-before-metrics.txt",
+        "H1-2-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H1",
+      "repeat": 3,
+      "cacheAtStartPercent": 0.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 30.72,
+      "rpcReadMiBApprox": 266.24,
+      "ufsReadMiBApprox": 481.41,
+      "ufsRoundingUpperMiB": 481.42,
+      "ufsStatus": "observedIncrease",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 30.72,
+          "roundingLowerMiB": 20.48,
+          "roundingUpperMiB": 40.96,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.16GB",
+          "afterDisplay": "12.19GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "13.16GB",
+          "afterDisplay": "13.42GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 481.41,
+          "roundingLowerMiB": 481.4,
+          "roundingUpperMiB": 481.42,
+          "status": "observedIncrease",
+          "beforeDisplay": "2238.26MB",
+          "afterDisplay": "2719.67MB"
+        }
+      },
+      "snapshotFiles": [
+        "H1-3-before-metrics.txt",
+        "H1-3-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H1",
+      "repeat": 4,
+      "cacheAtStartPercent": 0.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 30.72,
+      "rpcReadMiBApprox": 256.0,
+      "ufsReadMiBApprox": 485.4,
+      "ufsRoundingUpperMiB": 485.41,
+      "ufsStatus": "observedIncrease",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 30.72,
+          "roundingLowerMiB": 20.48,
+          "roundingUpperMiB": 40.96,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.45GB",
+          "afterDisplay": "12.48GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 256.0,
+          "roundingLowerMiB": 245.76,
+          "roundingUpperMiB": 266.24,
+          "status": "observedIncrease",
+          "beforeDisplay": "13.67GB",
+          "afterDisplay": "13.92GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 485.4,
+          "roundingLowerMiB": 485.39,
+          "roundingUpperMiB": 485.41,
+          "status": "observedIncrease",
+          "beforeDisplay": "2719.67MB",
+          "afterDisplay": "3205.07MB"
+        }
+      },
+      "snapshotFiles": [
+        "H1-4-before-metrics.txt",
+        "H1-4-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H1",
+      "repeat": 5,
+      "cacheAtStartPercent": 0.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 30.72,
+      "rpcReadMiBApprox": 256.0,
+      "ufsReadMiBApprox": 486.89,
+      "ufsRoundingUpperMiB": 486.9,
+      "ufsStatus": "observedIncrease",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 30.72,
+          "roundingLowerMiB": 20.48,
+          "roundingUpperMiB": 40.96,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.74GB",
+          "afterDisplay": "12.77GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 256.0,
+          "roundingLowerMiB": 245.76,
+          "roundingUpperMiB": 266.24,
+          "status": "observedIncrease",
+          "beforeDisplay": "14.18GB",
+          "afterDisplay": "14.43GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 486.89,
+          "roundingLowerMiB": 486.88,
+          "roundingUpperMiB": 486.9,
+          "status": "observedIncrease",
+          "beforeDisplay": "3205.07MB",
+          "afterDisplay": "3691.96MB"
+        }
+      },
+      "snapshotFiles": [
+        "H1-5-before-metrics.txt",
+        "H1-5-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H2",
+      "repeat": 1,
+      "cacheAtStartPercent": 100.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 256.0,
+      "rpcReadMiBApprox": 266.24,
+      "ufsReadMiBApprox": 0.0,
+      "ufsRoundingUpperMiB": 0.01,
+      "ufsStatus": "noIncreaseAtDisplayedPrecision",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 256.0,
+          "roundingLowerMiB": 245.76,
+          "roundingUpperMiB": 266.24,
+          "status": "observedIncrease",
+          "beforeDisplay": "11.62GB",
+          "afterDisplay": "11.87GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.41GB",
+          "afterDisplay": "12.67GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 0.0,
+          "roundingLowerMiB": 0.0,
+          "roundingUpperMiB": 0.01,
+          "status": "noIncreaseAtDisplayedPrecision",
+          "beforeDisplay": "1811.55MB",
+          "afterDisplay": "1811.55MB"
+        }
+      },
+      "snapshotFiles": [
+        "H2-1-before-metrics.txt",
+        "H2-1-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H2",
+      "repeat": 2,
+      "cacheAtStartPercent": 100.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 256.0,
+      "rpcReadMiBApprox": 266.24,
+      "ufsReadMiBApprox": 0.0,
+      "ufsRoundingUpperMiB": 0.01,
+      "ufsStatus": "noIncreaseAtDisplayedPrecision",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 256.0,
+          "roundingLowerMiB": 245.76,
+          "roundingUpperMiB": 266.24,
+          "status": "observedIncrease",
+          "beforeDisplay": "11.91GB",
+          "afterDisplay": "12.16GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.90GB",
+          "afterDisplay": "13.16GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 0.0,
+          "roundingLowerMiB": 0.0,
+          "roundingUpperMiB": 0.01,
+          "status": "noIncreaseAtDisplayedPrecision",
+          "beforeDisplay": "2238.26MB",
+          "afterDisplay": "2238.26MB"
+        }
+      },
+      "snapshotFiles": [
+        "H2-2-before-metrics.txt",
+        "H2-2-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H2",
+      "repeat": 3,
+      "cacheAtStartPercent": 100.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 266.24,
+      "rpcReadMiBApprox": 256.0,
+      "ufsReadMiBApprox": 0.0,
+      "ufsRoundingUpperMiB": 0.01,
+      "ufsStatus": "noIncreaseAtDisplayedPrecision",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.19GB",
+          "afterDisplay": "12.45GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 256.0,
+          "roundingLowerMiB": 245.76,
+          "roundingUpperMiB": 266.24,
+          "status": "observedIncrease",
+          "beforeDisplay": "13.42GB",
+          "afterDisplay": "13.67GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 0.0,
+          "roundingLowerMiB": 0.0,
+          "roundingUpperMiB": 0.01,
+          "status": "noIncreaseAtDisplayedPrecision",
+          "beforeDisplay": "2719.67MB",
+          "afterDisplay": "2719.67MB"
+        }
+      },
+      "snapshotFiles": [
+        "H2-3-before-metrics.txt",
+        "H2-3-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H2",
+      "repeat": 4,
+      "cacheAtStartPercent": 100.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 266.24,
+      "rpcReadMiBApprox": 266.24,
+      "ufsReadMiBApprox": 0.0,
+      "ufsRoundingUpperMiB": 0.01,
+      "ufsStatus": "noIncreaseAtDisplayedPrecision",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.48GB",
+          "afterDisplay": "12.74GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "13.92GB",
+          "afterDisplay": "14.18GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 0.0,
+          "roundingLowerMiB": 0.0,
+          "roundingUpperMiB": 0.01,
+          "status": "noIncreaseAtDisplayedPrecision",
+          "beforeDisplay": "3205.07MB",
+          "afterDisplay": "3205.07MB"
+        }
+      },
+      "snapshotFiles": [
+        "H2-4-before-metrics.txt",
+        "H2-4-after-metrics.txt"
+      ]
+    },
+    {
+      "label": "H2",
+      "repeat": 5,
+      "cacheAtStartPercent": 100.0,
+      "cacheAtEndPercent": 100.0,
+      "cacheReadMiBApprox": 266.24,
+      "rpcReadMiBApprox": 266.24,
+      "ufsReadMiBApprox": 0.0,
+      "ufsRoundingUpperMiB": 0.01,
+      "ufsStatus": "noIncreaseAtDisplayedPrecision",
+      "counterDetails": {
+        "BytesReadCache": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "12.77GB",
+          "afterDisplay": "13.03GB"
+        },
+        "BytesReadRemote": {
+          "deltaMiBApprox": 266.24,
+          "roundingLowerMiB": 256.0,
+          "roundingUpperMiB": 276.48,
+          "status": "observedIncrease",
+          "beforeDisplay": "14.43GB",
+          "afterDisplay": "14.69GB"
+        },
+        "BytesReadUfsAll": {
+          "deltaMiBApprox": 0.0,
+          "roundingLowerMiB": 0.0,
+          "roundingUpperMiB": 0.01,
+          "status": "noIncreaseAtDisplayedPrecision",
+          "beforeDisplay": "3691.96MB",
+          "afterDisplay": "3691.96MB"
+        }
+      },
+      "snapshotFiles": [
+        "H2-5-before-metrics.txt",
+        "H2-5-after-metrics.txt"
+      ]
+    }
+  ],
+  "metricSummary": [
+    {
+      "label": "H1",
+      "metric": "BytesReadCache",
+      "runs": 5,
+      "medianMiBApprox": 30.72,
+      "iqrMiBApprox": 10.240000000000002
+    },
+    {
+      "label": "H1",
+      "metric": "BytesReadRemote",
+      "runs": 5,
+      "medianMiBApprox": 256.0,
+      "iqrMiBApprox": 0.0
+    },
+    {
+      "label": "H1",
+      "metric": "BytesReadUfsAll",
+      "runs": 5,
+      "medianMiBApprox": 481.41,
+      "iqrMiBApprox": 17.0
+    },
+    {
+      "label": "H2",
+      "metric": "BytesReadCache",
+      "runs": 5,
+      "medianMiBApprox": 266.24,
+      "iqrMiBApprox": 10.240000000000009
+    },
+    {
+      "label": "H2",
+      "metric": "BytesReadRemote",
+      "runs": 5,
+      "medianMiBApprox": 266.24,
+      "iqrMiBApprox": 0.0
+    },
+    {
+      "label": "H2",
+      "metric": "BytesReadUfsAll",
+      "runs": 5,
+      "medianMiBApprox": 0.0,
+      "iqrMiBApprox": 0.0
+    }
+  ],
+  "timingSummary": [
+    {
+      "phase": "readMaterializeSeconds",
+      "label": "H0",
+      "runs": 5,
+      "medianSeconds": 49.02722244500001,
+      "iqrSeconds": 5.609905061000973,
+      "speedupVsH0": 1.0,
+      "timeReductionVsH0Percent": 0.0
+    },
+    {
+      "phase": "readMaterializeSeconds",
+      "label": "H1",
+      "runs": 5,
+      "medianSeconds": 79.76849197000047,
+      "iqrSeconds": 1.865904436999699,
+      "speedupVsH0": 0.6146188956842544,
+      "timeReductionVsH0Percent": -62.70244976550896
+    },
+    {
+      "phase": "readMaterializeSeconds",
+      "label": "H2",
+      "runs": 5,
+      "medianSeconds": 31.902256503999524,
+      "iqrSeconds": 2.100570290000178,
+      "speedupVsH0": 1.5367948169701902,
+      "timeReductionVsH0Percent": 34.92950464450991
+    },
+    {
+      "phase": "fitMaterializeSeconds",
+      "label": "H0",
+      "runs": 5,
+      "medianSeconds": 299.04969257799894,
+      "iqrSeconds": 4.3043633950001094,
+      "speedupVsH0": 1.0,
+      "timeReductionVsH0Percent": 0.0
+    },
+    {
+      "phase": "fitMaterializeSeconds",
+      "label": "H1",
+      "runs": 5,
+      "medianSeconds": 297.8268789009999,
+      "iqrSeconds": 1.342391674999817,
+      "speedupVsH0": 1.0041057868299574,
+      "timeReductionVsH0Percent": 0.4088998274693556
+    },
+    {
+      "phase": "fitMaterializeSeconds",
+      "label": "H2",
+      "runs": 5,
+      "medianSeconds": 296.51020087100005,
+      "iqrSeconds": 0.8869854150016181,
+      "speedupVsH0": 1.0085646014860168,
+      "timeReductionVsH0Percent": 0.8491871986581412
+    },
+    {
+      "phase": "readPlusFitSeconds",
+      "label": "H0",
+      "runs": 5,
+      "medianSeconds": 349.7645274000006,
+      "iqrSeconds": 3.400412501001483,
+      "speedupVsH0": 1.0,
+      "timeReductionVsH0Percent": 0.0
+    },
+    {
+      "phase": "readPlusFitSeconds",
+      "label": "H1",
+      "runs": 5,
+      "medianSeconds": 377.59537087100034,
+      "iqrSeconds": 3.7113571730005788,
+      "speedupVsH0": 0.9262945321421652,
+      "timeReductionVsH0Percent": -7.957022879902165
+    },
+    {
+      "phase": "readPlusFitSeconds",
+      "label": "H2",
+      "runs": 5,
+      "medianSeconds": 330.2252077580015,
+      "iqrSeconds": 3.4150376210000104,
+      "speedupVsH0": 1.0591696793066085,
+      "timeReductionVsH0Percent": 5.586421180914492
+    }
+  ],
+  "evidenceCounts": {
+    "warmRunsNoDisplayedUfsIncrease": 5,
+    "warmRunsPositiveCacheDelta": 5,
+    "coldRunsPositiveUfsDelta": 5
+  },
+  "warnings": [],
+  "limitations": [
+    "Snapshots are cluster-wide and heartbeat-delayed; deltas may include other activity.",
+    "Zero displayed delta is not proof of exactly zero bytes or an exact 100% cache hit rate.",
+    "Rounding bounds account only for display precision, not collection lag.",
+    "BytesReadRemote is client-worker RPC traffic, not equivalent to HDFS reads.",
+    "Cache and RPC counters overlap; do not sum them as disjoint reads.",
+    "UFS counter does not measure direct H0 reads.",
+    "ALS read timer includes persist and aggregate, not pure I/O.",
+    "Warm preload and Spark startup are excluded; OS page cache is uncontrolled."
+  ]
+}

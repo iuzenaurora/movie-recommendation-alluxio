@@ -1,0 +1,11 @@
+﻿label,repeat,cacheAtStartPercent,cacheAtEndPercent,cacheReadMiBApprox,rpcReadMiBApprox,ufsReadMiBApprox,ufsRoundingUpperMiB,ufsStatus
+H1,1,0.0,100.0,40.96,256.0,468.4,468.41,observedIncrease
+H1,2,0.0,100.0,40.96,235.52,426.71,426.72,observedIncrease
+H1,3,0.0,100.0,30.72,266.24,481.41,481.42,observedIncrease
+H1,4,0.0,100.0,30.72,256.0,485.4,485.41,observedIncrease
+H1,5,0.0,100.0,30.72,256.0,486.89,486.9,observedIncrease
+H2,1,100.0,100.0,256.0,266.24,0.0,0.01,noIncreaseAtDisplayedPrecision
+H2,2,100.0,100.0,256.0,266.24,0.0,0.01,noIncreaseAtDisplayedPrecision
+H2,3,100.0,100.0,266.24,256.0,0.0,0.01,noIncreaseAtDisplayedPrecision
+H2,4,100.0,100.0,266.24,266.24,0.0,0.01,noIncreaseAtDisplayedPrecision
+H2,5,100.0,100.0,266.24,266.24,0.0,0.01,noIncreaseAtDisplayedPrecision
